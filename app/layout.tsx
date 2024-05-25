@@ -1,5 +1,6 @@
 
 import { ClerkProvider } from '@clerk/nextjs'
+import { ChakraProvider } from '@chakra-ui/react'
 import React from 'react'
 import { Inter, Space_Grotesk } from "next/font/google"
 import './globals.css'
@@ -33,12 +34,14 @@ export default function RootLayout({
       <body className={`${inter.variable} ${spaceGrotesk.variable}`}>
         <ClerkProvider appearance={{
           elements: {
-            formButtonPrimary: "primary-gradient",
+            formButtonPrimary: "primary-gradient text-base",
             footerActionLink: "primary-text-gradient hover:text-primary-500"
-          }
+          },
         }}>
           <ThemeProvider>
-            {children}
+            <ChakraProvider>
+              {children}
+            </ChakraProvider>
           </ThemeProvider>
         </ClerkProvider>
       </body>

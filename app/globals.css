@@ -8,6 +8,16 @@ body {
   font-family: "Inter", sans-serif;
 }
 
+.cl-internal-11ttlho {
+  @apply primary-gradient;
+}
+.cl-internal-ttumny[data-variant="solid"][data-color="primary"] {
+  box-shadow: none;
+}
+.lucide-x {
+  @apply text-dark-300 w-8 h-8 dark:text-white; /* Default color and size */
+}
+
 @layer utilities {
   .flex-center {
     @apply flex justify-center items-center;
@@ -30,11 +40,11 @@ body {
   }
 
   .btn-secondary {
-    @apply bg-light-800 dark:bg-dark-400 !important;
+    @apply bg-light-800 hover:bg-[#F0EEED] duration-300 ease-in-out transition-colors dark:bg-dark-400 dark:hover:bg-[#001C30] !important;
   }
 
   .btn-tertiary {
-    @apply bg-light-700 dark:bg-dark-300 !important;
+    @apply bg-light-700 hover:bg-[#CDE8E5] duration-300 ease-in-out transition-colors dark:bg-dark-300 dark:hover:bg-dark-100 !important;
   }
 
   .markdown {
