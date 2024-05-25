@@ -33,10 +33,19 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${spaceGrotesk.variable}`}>
         <ClerkProvider appearance={{
-          elements: {
-            formButtonPrimary: "primary-gradient text-base",
-            footerActionLink: "primary-text-gradient hover:text-primary-500"
+          layout: {
+            logoImageUrl: "/assets/images/site-logo.svg",
+            socialButtonsVariant: "iconButton",
           },
+          variables: {
+            colorText: "#fff",
+            colorPrimary: "#0E78F9",
+            colorBackground: "#1C1F2E",
+            colorInputBackground: "#252a41",
+            colorInputText: "#fff",
+            colorTextSecondary: "#fff"
+            // button color
+          }
         }}>
           <ThemeProvider>
             <ChakraProvider>

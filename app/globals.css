@@ -8,11 +8,49 @@ body {
   font-family: "Inter", sans-serif;
 }
 
-.cl-internal-11ttlho {
-  @apply primary-gradient;
+.cl-navbarButton {
+  color: white;
 }
-.cl-internal-ttumny[data-variant="solid"][data-color="primary"] {
-  box-shadow: none;
+.cl-active {
+  color: rgb(11, 122, 249);
+}
+.cl-avatarImageActionsUpload {
+  color: white;
+}
+.cl-avatarImageActionsUpload:hover {
+  color: rgb(11, 122, 249);
+}
+.cl-badge {
+  color: rgb(11, 122, 249);
+}
+.cl-userButtonPopoverActionButton:hover {
+  color: rgb(11, 122, 249);
+}
+.cl-userButtonPopoverActionButtonIcon {
+  color: white;
+}
+
+.cl-logoBox {
+  height: 40px;
+}
+.cl-dividerLine {
+  background: #252a41;
+  height: 2px;
+}
+
+.cl-socialButtonsIconButton {
+  border: 3px solid #565761;
+}
+
+.cl-internal-wkkub3 {
+  color: white;
+}
+.cl-userButtonPopoverActionButton {
+  color: white;
+}
+
+.cl-providerIcon__github {
+  filter: invert(1);
 }
 .lucide-x {
   @apply text-dark-300 w-8 h-8 dark:text-white; /* Default color and size */
