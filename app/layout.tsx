@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 
 import { ClerkProvider } from '@clerk/nextjs'
 // import { ChakraProvider } from '@chakra-ui/react'
