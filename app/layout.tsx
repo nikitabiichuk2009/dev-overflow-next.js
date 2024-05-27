@@ -1,6 +1,6 @@
 
 import { ClerkProvider } from '@clerk/nextjs'
-import { ChakraProvider } from '@chakra-ui/react'
+// import { ChakraProvider } from '@chakra-ui/react'
 import React from 'react'
 import { Inter, Space_Grotesk } from "next/font/google"
 import './globals.css'
@@ -48,9 +48,9 @@ export default function RootLayout({
           }
         }}>
           <ThemeProvider>
-            <ChakraProvider>
-              {children}
-            </ChakraProvider>
+            {/* <ChakraProvider> */}
+            {children}
+            {/* </ChakraProvider> */}
           </ThemeProvider>
         </ClerkProvider>
       </body>

@@ -18,10 +18,10 @@ const NavContent = () => {
   return <section className='flex h-full flex-col gap-6 pt-16'>
     {sidebarLinks.map((link) => {
       const isActive = pathName === link.route || (link.label !== "Home" && pathName.startsWith(link.route));
-      return (<SheetClose key={link.imgURL}>
+      return (<SheetClose asChild key={link.imgURL}>
         <Link href={link.route}
-          className={`${isActive ? "primary-gradient rounded-lg text-light-900" : "text-dark300_light900"} 
-          flex items-center justify-start gap-4 bg-transparent p-4`}>
+          className={`${isActive ? "primary-gradient  text-light-900" : "text-dark300_light900"} 
+          flex items-center justify-start gap-4 rounded-lg bg-transparent p-4 hover:bg-light-800 dark:hover:bg-dark-300`}>
           <Image src={link.imgURL} alt={link.label} width={20} height={20} className={`${isActive ? "" : "invert-colors"}`} />
           <p className={`${isActive ? "base-bold" : "base-medium"}`}>{link.label}</p>
         </Link>

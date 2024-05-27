@@ -46,9 +46,9 @@ const GlobalSearch = () => {
           type="text"
           placeholder='Search globally'
           ref={inputRef}
-          className='paragraph-regular no-focus placeholder 
-          background-light800_darkgradient text-dark400_light700
-           ml-2 border-none shadow-none outline-none'
+          className='paragraph-regular no-focus placeholder background-light800_darkgradient 
+          text-dark400_light700 
+           border-none shadow-none outline-none'
         />
       </div>
     </div>
