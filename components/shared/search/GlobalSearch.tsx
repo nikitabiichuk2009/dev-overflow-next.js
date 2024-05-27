@@ -28,6 +28,7 @@ const GlobalSearch = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
   return (
     <div className={`relative ${user.isSignedIn ? "max-w-[180px]" : "max-w-[220px]"}
      ${user.isSignedIn ? "sm:max-w-[250px]" : "sm:max-w-[300px]"}
