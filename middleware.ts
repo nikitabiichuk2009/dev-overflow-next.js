@@ -1,28 +1,32 @@
-import { authMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default authMiddleware({
-  publicRoutes: [
-    "/",
-    "/api/webhook",
-    "question/:id",
-    "/tags",
-    "/tags/:id",
-    "/profile/:id",
-    "/community",
-    "/jobs",
-  ],
-  ignoredRoutes: ["/api/webhook", "/api/chatgpt"],
+// Define protected and public routes
+const publicRoutes = [
+  "/",
+  "/api/webhook", // Ensure webhook route is public
+  "/question/:id",
+  "/tags",
+  "/tags/:id",
+  "/profile/:id",
+  "/community",
+  "/jobs",
+];
+
+// Matchers for protected routes
+const isProtectedRoute = createRouteMatcher(["/ask-question"]);
+const isPublicRoute = createRouteMatcher(publicRoutes);
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req) && !isPublicRoute(req)) {
+    auth().protect();
+  }
 });
 
+// Configuring matcher to ignore static files, _next, and specific API routes
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: [
+    "/((?!.*\\..*|_next|api/webhook|api/chatgpt).*)", // Exclude static files, _next, api/webhook, and api/chatgpt
+    "/",
+    "/(api|trpc)(.*)",
+  ],
 };
-
-// import { clerkMiddleware } from "@clerk/nextjs/server";
-
-// // Make sure that the `/api/webhooks/(.*)` route is not protected here
-// export default clerkMiddleware();
-
-// export const config = {
-//   matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
-// };
