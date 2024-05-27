@@ -30,7 +30,6 @@
     "lucide-react": "^0.379.0",
     "mongodb": "^6.6.2",
     "mongoose": "^8.4.0",
-    "mongose": "^0.0.2-security",
     "next": "14.2.3",
     "prettier": "^3.2.5",
     "react": "^18",
