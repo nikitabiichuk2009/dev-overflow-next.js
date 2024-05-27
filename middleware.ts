@@ -7,9 +7,5 @@ export default clerkMiddleware((auth, req) => {
 });
 
 export const config = {
-  matcher: [
-    "/((?!.*\\..*|_next|api/webhook).*)", // Ignore api/webhook and static files/_next
-    "/",
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/", "/(api|trpc)(.*)"],
 };
