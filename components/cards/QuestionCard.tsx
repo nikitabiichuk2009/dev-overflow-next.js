@@ -39,7 +39,7 @@ const QuestionCard = ({ id, title, tags, author, upvotes, answers, views, create
         })}
       </div>
       <div className='flex-between mt-6 w-full flex-wrap gap-3'>
-        {/* <Metric imgUrl={author.picture} alt="user" value={author.name} title={` - asked ${getTimestamp(createdAt)}`} isAuthor href={`/profile/${author._id}`} textStyles="body-medium text-dark400_light700" /> */}
+        <Metric imgUrl="/public/assets/icons/avatar.svg" alt="user" value={author.name} title={` - asked ${getTimestamp(createdAt)}`} isAuthor href={`/profile/${author._id}`} textStyles="body-medium text-dark400_light700" />
         <div className="flex items-center gap-3 max-sm:flex-wrap max-sm:justify-start">
           <Metric imgUrl="/assets/icons/like.svg" alt="upvotes" value={formatLargeNumber(upvotes)} title=" Votes" textStyles="small-medium text-dark400_light800" />
           <Metric imgUrl="/assets/icons/message.svg" alt="message" value={formatLargeNumber(answers.length)} title=" Answers" textStyles="small-medium text-dark400_light800" />

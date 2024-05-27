@@ -17,6 +17,7 @@ export async function getQuestions(params: GetQuestionsParams) {
     return { questions };
   } catch (err) {
     console.log(err);
+    throw new Error("Failed to fetch questions");
   }
 }
 
@@ -45,5 +46,6 @@ export async function createQuestion(params: CreateQuestionParams) {
     revalidatePath(path);
   } catch (err) {
     console.log(err);
+    throw new Error("Failed to create question");
   }
 }

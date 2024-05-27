@@ -101,7 +101,7 @@ import { getQuestions } from "@/lib/actions/question.action";
 export default async function Home() {
   const result = await getQuestions({});
   const questionsParsed = await JSON.parse(JSON.stringify(result?.questions));
-  console.log(questionsParsed)
+  // console.log(questionsParsed)
 
   return (
     <>
