@@ -19,14 +19,16 @@ import { QuestionsSchema } from "@/lib/validations"
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
 import { useTheme } from '@/context/ThemeProvider'
-import { createQuestion } from '@/lib/actions/question.action';
+import { createQuestion } from '@/lib/actions/question.actions';
 import { useRouter } from 'next/navigation';
+import NoResults from '../shared/NoResults';
 
 const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
   const router = useRouter()
   const { mode } = useTheme()
   const [editorKey, setEditorKey] = useState(0);
-  const type: any = 'create';
+  const [error, setError] = useState("");
+  const type: string = 'create';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const editorRef = useRef(null);
   const form = useForm<z.infer<typeof QuestionsSchema>>({
@@ -50,7 +52,8 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
       });
       router.push("/")
     } catch (err) {
-
+      console.log(err)
+      setError("Error occured while posting the question!")
     } finally {
       setIsSubmitting(false)
     }
@@ -63,7 +66,7 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
       e.preventDefault();
 
       const tagInput = e.target as HTMLInputElement;
-      const tagValue = tagInput.value.trim();
+      const tagValue = tagInput.value.trim().toUpperCase();
 
       if (tagValue !== '') {
         if (tagValue.length > 15) {
@@ -87,6 +90,18 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
     const newtags = field.value.filter((t: string) => t !== tag)
     form.setValue("tags", newtags)
   }
+
+  if (error) {
+    return (
+      <NoResults
+        title="Error submitting question"
+        description="There was an error while submitting your question. Please try again later."
+        buttonTitle='Go back'
+        href='/'
+      />
+    );
+  }
+
   return (
     <div>
       <Form {...form}>

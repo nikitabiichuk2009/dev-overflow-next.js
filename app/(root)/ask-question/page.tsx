@@ -1,5 +1,5 @@
 import QuestionForm from '@/components/forms/QuestionForm'
-import { getUserById } from '@/lib/actions/user.action';
+import { getUserById } from '@/lib/actions/user.actions';
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation';
 import React from 'react'

@@ -7,9 +7,22 @@ import {
   DeleteUserParams,
   GetUserByIdParams,
   UpdateUserParams,
+  GetAllUsersParams,
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
+
+export async function getAllUsers(params: GetAllUsersParams) {
+  try {
+    await connectToDB();
+    // const { page = 1, pageSize = 20, filter, searchQuery} = params;
+    const users = await User.find({}).sort({ joinDate: -1 });
+    return { users };
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch users");
+  }
+}
 
 export async function getUserById(params: GetUserByIdParams) {
   try {
@@ -28,6 +41,7 @@ export async function createUser(userData: CreateUserParams) {
     connectToDB();
 
     const newUser = await User.create(userData);
+    revalidatePath("/community");
     return newUser;
   } catch (err) {
     console.log(err);
@@ -38,10 +52,12 @@ export async function updateUser(userData: UpdateUserParams) {
   try {
     connectToDB();
     const { clerkId, updateData, path } = userData;
-    await User.findOneAndUpdate({ clerkId }, updateData, {
+    const updatedUser = await User.findOneAndUpdate({ clerkId }, updateData, {
       new: true,
     });
+    revalidatePath("/community");
     revalidatePath(path);
+    return updatedUser;
   } catch (err) {
     console.log(err);
   }
@@ -61,6 +77,7 @@ export async function deleteUser(userData: DeleteUserParams) {
 
     await Question.deleteMany({ author: user._id });
     const deletedUser = await User.findOneAndDelete(user._id);
+    revalidatePath("/community");
     return deletedUser;
   } catch (err) {
     console.log(err);

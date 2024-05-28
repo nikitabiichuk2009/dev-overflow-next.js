@@ -14,7 +14,7 @@ const TagSchema = new Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   questions: [{ type: Schema.Types.ObjectId, ref: "Question" }], // Reference to questions
-  followers: [{ type: Schema.Types.ObjectId, ref: "Follower" }], // Reference to followers
+  followers: [{ type: Schema.Types.ObjectId, ref: "User" }], // Reference to followers
   createdAt: { type: Date, default: Date.now }, // Date the tag was created
 });
 

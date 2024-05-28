@@ -13,6 +13,8 @@ export const connectToDB = async () => {
     return console.log("MongoDB is already connected");
   }
 
+  console.log(`Connecting to: ${process.env.MONGO_DB_URL}`);
+
   try {
     await mongoose.connect(process.env.MONGO_DB_URL, {
       dbName: "devflow_nextjs",

@@ -35,7 +35,10 @@ export async function createQuestion(params: CreateQuestionParams) {
     for (const tag of tags) {
       const existingTag = await Tag.findOneAndUpdate(
         { name: { $regex: new RegExp(`^${tag}$`, "i") } },
-        { $setOnInsert: { name: tag }, $push: { question: question._id } }, // Add question ID to existing tag
+        {
+          $setOnInsert: { name: tag },
+          $push: { questions: question._id, followers: author },
+        },
         { new: true, upsert: true } // Create tag if it doesn't exist
       );
       tagDocuments.push(existingTag._id);
@@ -43,6 +46,11 @@ export async function createQuestion(params: CreateQuestionParams) {
     await Question.findByIdAndUpdate(question._id, {
       $push: { tags: { $each: tagDocuments } },
     });
+
+    await User.findByIdAndUpdate(author, {
+      $push: { savedPosts: question._id },
+    });
+
     revalidatePath(path);
   } catch (err) {
     console.log(err);
