@@ -7,7 +7,6 @@ import { UserFilters } from '@/constants/filters';
 import { getAllUsers } from '@/lib/actions/user.actions';
 import { getTagsByUserId } from '@/lib/actions/tag.actions';
 
-
 const Page = async () => {
   try {
     const result = await getAllUsers({});

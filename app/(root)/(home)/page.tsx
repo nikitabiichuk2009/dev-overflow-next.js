@@ -8,13 +8,24 @@ import QuestionCard from "@/components/cards/QuestionCard";
 import NoResults from "@/components/shared/NoResults";
 import { getQuestions } from "@/lib/actions/question.actions";
 
+interface Question {
+  _id: string;
+  title: string;
+  tags: { _id: string; name: string }[];
+  author: { _id: string; name: string; picture: string };
+  upvotes: number;
+  answers: any[];
+  views: number;
+  createdAt: Date;
+}
+
 export default async function Home() {
   let questionsParsed = [];
 
   try {
     const result = await getQuestions({});
     questionsParsed = await JSON.parse(JSON.stringify(result?.questions));
-    console.log(questionsParsed);
+    // console.log(questionsParsed);
   } catch (err) {
     console.error('Failed to fetch questions', err);
     return (
@@ -54,7 +65,7 @@ export default async function Home() {
       <DekstopFilters />
       <div className="mt-10 flex w-full flex-col gap-6">
         {questionsParsed.length > 0 ?
-          questionsParsed.map((question: any) => {
+          questionsParsed.map((question: Question) => {
             return <QuestionCard
               key={question._id}
               id={question._id}

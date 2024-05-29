@@ -5,7 +5,7 @@ import Metric from '../shared/Metric';
 import { formatLargeNumber, getTimestamp } from '@/lib/utils';
 
 interface Props {
-  id: number;
+  id: string;
   title: string;
   tags: { _id: string; name: string }[];
   author: {

@@ -28,9 +28,9 @@ const LocalSearchBar = ({ searchFor, iconPosition, imgSrc, otherClasses }: { sea
             type="text"
             placeholder={searchFor}
             ref={inputRef}
-            className='paragraph-regular no-focus placeholder 
-          background-light800_darkgradient text-dark400_light700 ml-2
-           border-none shadow-none outline-none dark:bg-transparent'
+            className='paragraph-regular no-focus placeholder text-dark400_light700
+           ml-2 border-none
+           bg-transparent shadow-none outline-none'
           />
         </>}
       {iconPosition === "right" &&
@@ -41,8 +41,8 @@ const LocalSearchBar = ({ searchFor, iconPosition, imgSrc, otherClasses }: { sea
             placeholder={searchFor}
             ref={inputRef}
             className='paragraph-regular no-focus placeholder 
-          background-light800_darkgradient text-dark400_light700 ml-2
-           border-none shadow-none outline-none dark:bg-transparent'
+            text-dark400_light700 ml-2 border-none
+           bg-transparent shadow-none outline-none'
           />
           <Image
             src={imgSrc}
