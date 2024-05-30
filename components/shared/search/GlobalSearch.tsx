@@ -30,10 +30,10 @@ const GlobalSearch = () => {
   }, []);
 
   return (
-    <div className={`relative ${user.isSignedIn ? "max-w-[180px]" : "max-w-[220px]"}
-     ${user.isSignedIn ? "sm:max-w-[250px]" : "sm:max-w-[300px]"}
-     ${user.isSignedIn ? "md:max-w-[380px]" : "md:max-w-[430px]"}
-     lg:max-w-[600px]`}>
+    <div className={`relative ${user.isSignedIn ? "w-[180px]" : "w-[220px]"}
+     ${user.isSignedIn ? "sm:w-[250px]" : "sm:w-[300px]"}
+     ${user.isSignedIn ? "md:w-[380px]" : "md:w-[430px]"}
+     lg:w-[600px]`}>
       <div className='background-light800_darkgradient relative flex min-h-[56px] grow items-center rounded-xl px-4'>
         <Image
           src="/assets/icons/search.svg"

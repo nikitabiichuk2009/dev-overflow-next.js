@@ -39,7 +39,7 @@ const Page = async () => {
             usersWithTags.map((user) => (
               <UserCard
                 key={user._id}
-                id={user._id}
+                id={user.clerkId}
                 fullName={user.name}
                 username={user.username}
                 picture={user.picture}
@@ -67,7 +67,7 @@ const Page = async () => {
             title="Error fetching users"
             description="There was an error fetching the users or their tags. Please try again later."
             buttonTitle='Go back'
-            href='/'
+            href='../'
           />
         </div>
       </div>

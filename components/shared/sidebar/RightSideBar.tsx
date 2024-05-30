@@ -38,7 +38,7 @@ const RightSideBar = async () => {
             <h3 className='h3-bold text-dark200_light900'>Top Questions</h3>
             <div className='mt-7 flex w-full flex-col gap-1'>
               {hotQuestions.map((question: Question) => (
-                <Link key={question._id} href={`/questions/${question._id}`} className='flex cursor-pointer items-center justify-between gap-7 rounded-md p-3 hover:bg-light-800 dark:hover:bg-dark-300'>
+                <Link key={question._id} href={`/question/${question._id}`} className='flex cursor-pointer items-center justify-between gap-7 rounded-md p-3 hover:bg-light-800 dark:hover:bg-dark-300'>
                   <p className='body-medium text-dark500_light700 line-clamp-3'>{question.title}</p>
                   <Image src="/assets/icons/chevron-right.svg" width={20} height={20} className='invert-colors' alt="" />
                 </Link>

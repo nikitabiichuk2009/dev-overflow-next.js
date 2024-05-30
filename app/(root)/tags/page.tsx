@@ -58,7 +58,7 @@ const Page = async () => {
             title="Error fetching tags"
             description="There was an error fetching the tags. Please try again later."
             buttonTitle='Go back'
-            href='/'
+            href='../'
           />
         </div>
       </div>

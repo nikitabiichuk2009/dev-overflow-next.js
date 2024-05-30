@@ -22,10 +22,12 @@ import { useTheme } from '@/context/ThemeProvider'
 import { createQuestion } from '@/lib/actions/question.actions';
 import { useRouter } from 'next/navigation';
 import NoResults from '../shared/NoResults';
+import { useToast } from '@chakra-ui/react';
 
 const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
-  const router = useRouter()
-  const { mode } = useTheme()
+  const router = useRouter();
+  const toast = useToast()
+  const { mode } = useTheme();
   const [editorKey, setEditorKey] = useState(0);
   const [error, setError] = useState("");
   const type: string = 'create';
@@ -51,10 +53,15 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
         path: "/"
       });
       router.push("/")
+      toast({
+        title: 'Successfully created a question',
+        status: 'success',
+        isClosable: true,
+      })
+      setIsSubmitting(false)
     } catch (err) {
       console.log(err)
       setError("Error occured while posting the question!")
-    } finally {
       setIsSubmitting(false)
     }
   }
@@ -97,7 +104,7 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
         title="Error submitting question"
         description="There was an error while submitting your question. Please try again later."
         buttonTitle='Go back'
-        href='/'
+        href='../'
       />
     );
   }
@@ -202,16 +209,18 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={isSubmitting} className='min-h-[46px] w-full bg-primary-500 px-4 py-3 font-semibold !text-light-900 shadow-md transition-colors duration-300 ease-out hover:bg-[#FF6000] dark:shadow-none sm:w-fit'>
-            {isSubmitting ?
-              <>
-                {type === "edit" ? "Editing..." : "Submitting..."}
-              </>
-              :
-              <>
-                {type === "edit" ? 'Edit Question' : "Submit Question"}
-              </>}
-          </Button>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSubmitting} className='min-h-[46px] w-full bg-primary-500 px-4 py-3 font-semibold !text-light-900 shadow-md transition-colors duration-300 ease-out hover:bg-[#FF6000] dark:shadow-none sm:w-fit'>
+              {isSubmitting ?
+                <>
+                  {type === "edit" ? "Editing..." : "Submitting..."}
+                </>
+                :
+                <>
+                  {type === "edit" ? 'Edit Question' : "Submit Question"}
+                </>}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

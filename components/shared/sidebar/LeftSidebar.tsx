@@ -5,9 +5,10 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SignedIn, SignedOut, useClerk } from '@clerk/nextjs';
-import { Button } from '@chakra-ui/react';
+import { Button, useToast } from '@chakra-ui/react';
 
 const LeftSideBar = () => {
+  const toast = useToast()
   const { signOut } = useClerk();
   const pathName = usePathname();
 
@@ -66,7 +67,14 @@ const LeftSideBar = () => {
         </SignedOut>
         <SignedIn>
           <Button
-            onClick={() => signOut({ redirectUrl: '/' })}
+            onClick={() => {
+              signOut({ redirectUrl: '/' })
+              toast({
+                title: 'Successfully logged out',
+                status: 'success',
+                isClosable: true,
+              })
+            }}
             className='btn-tertiary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none'
           >
             <Image

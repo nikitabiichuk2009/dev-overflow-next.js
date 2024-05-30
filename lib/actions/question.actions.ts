@@ -3,7 +3,11 @@
 import Question from "@/database/question.model";
 import { connectToDB } from "../mongose";
 import Tag from "@/database/tag.model";
-import { GetQuestionsParams, CreateQuestionParams } from "./shared.types";
+import {
+  GetQuestionsParams,
+  CreateQuestionParams,
+  GetQuestionByIdParams,
+} from "./shared.types";
 import User from "@/database/user.model";
 import { revalidatePath } from "next/cache";
 
@@ -45,6 +49,7 @@ export async function createQuestion(params: CreateQuestionParams) {
       title,
       content,
       author,
+      views: 0,
     });
 
     const tagDocuments = [];
@@ -82,13 +87,27 @@ export async function createQuestion(params: CreateQuestionParams) {
       $push: { tags: { $each: tagDocuments } },
     });
 
-    await User.findByIdAndUpdate(author, {
-      $push: { savedPosts: question._id },
-    });
+    // await User.findByIdAndUpdate(author, {
+    //   $push: { savedPosts: question._id },
+    // });
 
     revalidatePath(path);
   } catch (err) {
     console.log(err);
     throw new Error("Failed to create question");
+  }
+}
+
+export async function getQuestionById(params: GetQuestionByIdParams) {
+  try {
+    connectToDB();
+    const { questionId } = params;
+    const question = await Question.findById(questionId)
+      .populate({ path: "tags", model: Tag })
+      .populate({ path: "author", model: User });
+    return question;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to load specific question");
   }
 }

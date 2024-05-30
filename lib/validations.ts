@@ -19,5 +19,11 @@ export const QuestionsSchema = z.object({
         .max(20, "Tag must be not more than 20 characters.")
     )
     .min(1, "Please use at least 1 tag.")
-    .max(3, "Please use not more than 3 tags."),
+    .max(5, "Please use not more than 5 tags."),
+});
+
+export const AnswerShema = z.object({
+  answer: z
+    .string()
+    .min(50, "Please provide meaningful answer, use at least 50 characters."),
 });

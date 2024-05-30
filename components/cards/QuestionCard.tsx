@@ -13,7 +13,7 @@ interface Props {
     name: string,
     picture: string
   };
-  upvotes: number;
+  upvotes: Array<object>;
   answers: Array<object>;
   views: number;
   createdAt: Date;
@@ -41,9 +41,9 @@ const QuestionCard = ({ id, title, tags, author, upvotes, answers, views, create
       <div className='flex-between mt-6 w-full flex-wrap gap-3'>
         <Metric imgUrl={author.picture} alt="user" value={author.name} title={` - asked ${getTimestamp(createdAt)}`} isAuthor href={`/profile/${author._id}`} textStyles="body-medium text-dark400_light700" />
         <div className="flex items-center gap-3 max-sm:flex-wrap max-sm:justify-start">
-          <Metric imgUrl="/assets/icons/like.svg" alt="upvotes" value={formatLargeNumber(upvotes) || 0} title=" Votes" textStyles="small-medium text-dark400_light800" />
-          <Metric imgUrl="/assets/icons/message.svg" alt="message" value={formatLargeNumber(answers.length) || 0} title=" Answers" textStyles="small-medium text-dark400_light800" />
-          <Metric imgUrl="/assets/icons/eye.svg" alt="views" value={formatLargeNumber(views) || 0} title=" Views" textStyles="small-medium text-dark400_light800" />
+          <Metric imgUrl="/assets/icons/like.svg" alt="upvotes" value={formatLargeNumber(upvotes.length) || 0} title={` ${upvotes.length === 1 ? "Vote" : "Votes"}`} textStyles="small-medium text-dark400_light800" />
+          <Metric imgUrl="/assets/icons/message.svg" alt="message" value={formatLargeNumber(answers.length) || 0} title={` ${answers.length === 1 ? "Answer" : "Answers"}`} textStyles="small-medium text-dark400_light800" />
+          <Metric imgUrl="/assets/icons/eye.svg" alt="views" value={formatLargeNumber(views) || 0} title={` ${views === 1 ? "View" : "Views"}`} textStyles="small-medium text-dark400_light800" />
         </div>
       </div>
     </div>

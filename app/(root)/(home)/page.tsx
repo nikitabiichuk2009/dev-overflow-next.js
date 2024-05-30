@@ -13,7 +13,7 @@ interface Question {
   title: string;
   tags: { _id: string; name: string }[];
   author: { _id: string; name: string; picture: string };
-  upvotes: number;
+  upvotes: any[];
   answers: any[];
   views: number;
   createdAt: Date;
