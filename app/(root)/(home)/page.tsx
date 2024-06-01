@@ -24,7 +24,7 @@ export default async function Home() {
 
   try {
     const result = await getQuestions({});
-    questionsParsed = await JSON.parse(JSON.stringify(result?.questions));
+    questionsParsed = JSON.parse(JSON.stringify(result?.questions));
     // console.log(questionsParsed);
   } catch (err) {
     console.error('Failed to fetch questions', err);

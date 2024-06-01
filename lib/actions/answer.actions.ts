@@ -1,6 +1,7 @@
 "use server";
 import Answer from "@/database/asnwer.model";
 import {
+  AnswerVoteParams,
   CreateAnswerParams,
   DeleteAnswerParams,
   GetAnswersParams,
@@ -9,7 +10,7 @@ import { revalidatePath } from "next/cache";
 import { connectToDB } from "../mongose";
 import Question from "@/database/question.model";
 import User from "@/database/user.model";
-import { Error } from "mongoose";
+import mongoose, { Error } from "mongoose";
 
 export async function getAllAnswers(params: GetAnswersParams) {
   const { questionId } = params;
@@ -64,11 +65,88 @@ export async function deleteAnswerById(params: DeleteAnswerParams) {
       $pull: { answers: deletedAnswer._id },
     });
 
-    // Revalidate the path to update the cache
     revalidatePath(path);
     return { success: true, message: "Answer deleted successfully" };
   } catch (err) {
     console.log(err);
     throw new Error("Failed to delete the answer");
+  }
+}
+
+export async function upvoteAnswer(params: AnswerVoteParams) {
+  try {
+    connectToDB();
+    const { answerId, userId, path, hasupVoted } = params;
+    const answerObjectId = new mongoose.Types.ObjectId(answerId);
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const answer = await Answer.findById(answerObjectId);
+    const user = await User.findById(userObjectId);
+
+    if (!answer || !user) {
+      throw new Error('Answer or User not found');
+    }
+
+    // Check if the user has already upvoted the answer
+    if (hasupVoted) {
+      // Remove upvote
+      await Answer.updateOne(
+        { _id: answerObjectId },
+        { $pull: { upvotes: userObjectId } }
+      );
+    } else {
+      // Add upvote and remove downvote if present
+      await Answer.updateOne(
+        { _id: answerObjectId },
+        {
+          $addToSet: { upvotes: userObjectId },
+          $pull: { downvotes: userObjectId }
+        }
+      );
+    }
+
+    revalidatePath(path);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Error updating upvotes for an answer");
+  }
+}
+
+export async function downvoteAnswer(params: AnswerVoteParams) {
+  try {
+    connectToDB();
+    const { answerId, userId, path, hasdownVoted } = params;
+    const answerObjectId = new mongoose.Types.ObjectId(answerId);
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const answer = await Answer.findById(answerObjectId);
+    const user = await User.findById(userObjectId);
+
+    if (!answer || !user) {
+      throw new Error('Answer or User not found');
+    }
+
+    // Check if the user has already downvoted the answer
+    if (hasdownVoted) {
+      // Remove downvote
+      await Answer.updateOne(
+        { _id: answerObjectId },
+        { $pull: { downvotes: userObjectId } }
+      );
+    } else {
+      // Add downvote and remove upvote if present
+      await Answer.updateOne(
+        { _id: answerObjectId },
+        {
+          $addToSet: { downvotes: userObjectId },
+          $pull: { upvotes: userObjectId }
+        }
+      );
+    }
+
+    revalidatePath(path);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Error updating downvotes for an answer");
   }
 }

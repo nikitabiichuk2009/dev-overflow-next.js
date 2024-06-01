@@ -19,6 +19,7 @@ import {
 import { deleteAnswerById } from '@/lib/actions/answer.actions';
 import { useToast } from '@chakra-ui/react';
 import NoResults from '../shared/NoResults';
+import Votes from '../shared/Votes';
 
 interface IAuthor {
   _id: string;
@@ -33,7 +34,7 @@ interface IAuthor {
   __v: number;
 }
 
-const AnswerCard = ({ author, questionId, answerId, createdAt, userId, content }: { questionId: string, answerId: string, userId: string, author: IAuthor, createdAt: Date, content: string }) => {
+const AnswerCard = ({ author, questionId, answerId, upvotes, downvotes, createdAt, userId, content }: { questionId: string, upvotes: string[], downvotes: string[], answerId: string, userId: string, author: IAuthor, createdAt: Date, content: string }) => {
   const toast = useToast();
   const [error, setError] = useState("")
   const handleDeleteAnswer = async () => {
@@ -74,7 +75,15 @@ const AnswerCard = ({ author, questionId, answerId, createdAt, userId, content }
             </div>
           </Link>
           <div className='flex justify-end'>
-            VOTING
+            <Votes
+              type="answer"
+              itemId={answerId} 
+              userId={userId}
+              upvotes={upvotes.length}
+              hasUpvoted={upvotes.includes(userId)}
+              downvotes={downvotes.length}
+              hasDownvoted={downvotes.includes(userId)}
+            />
           </div>
         </div>
       </div>

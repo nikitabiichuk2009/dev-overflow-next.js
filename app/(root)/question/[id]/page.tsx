@@ -4,10 +4,12 @@ import Metric from '@/components/shared/Metric';
 import NoResults from '@/components/shared/NoResults';
 import ParseHtml from '@/components/shared/ParseHtml';
 import Tag from '@/components/shared/Tag';
+import Votes from '@/components/shared/Votes';
 import { getQuestionById } from '@/lib/actions/question.actions';
 import { getUserById } from '@/lib/actions/user.actions';
 import { formatLargeNumber, getTimestamp } from '@/lib/utils';
 import { auth } from '@clerk/nextjs/server';
+import console from 'console';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -24,7 +26,7 @@ const Page = async ({ params }: any) => {
 
   if (userId) {
     const mongoUserInitial = await getUserById({ userId });
-    mongoUser = await JSON.parse(JSON.stringify(mongoUserInitial))
+    mongoUser = JSON.parse(JSON.stringify(mongoUserInitial));
   } else {
     console.log("No user now");
   }
@@ -32,7 +34,7 @@ const Page = async ({ params }: any) => {
   let parsedQuestion;
   try {
     const result = await getQuestionById({ questionId: params.id });
-    parsedQuestion = await JSON.parse(JSON.stringify(result));
+    parsedQuestion = JSON.parse(JSON.stringify(result));
   } catch (error) {
     console.error("Error fetching question:", error);
     return (
@@ -60,7 +62,16 @@ const Page = async ({ params }: any) => {
             <h3 className='h3-semibold text-dark300_light700'>{parsedQuestion.author.name}</h3>
           </Link>
           <div className='flex justify-end'>
-            VOTING
+          <Votes 
+            type="question"
+            itemId={parsedQuestion._id} 
+            userId={mongoUser ? mongoUser._id : "null"}
+            upvotes={parsedQuestion.upvotes.length}
+            hasUpvoted={mongoUser ? parsedQuestion.upvotes.includes(mongoUser._id): false}
+            downvotes={parsedQuestion.downvotes.length}
+            hasDownvoted={mongoUser ? parsedQuestion.downvotes.includes(mongoUser._id): false}
+            hasSaved={mongoUser ? mongoUser.savedPosts.includes(parsedQuestion._id): false}
+          />
           </div>
         </div>
         <h2 className='h2-semibold text-dark200_light900 mt-3.5 w-full text-left'>{parsedQuestion.title}</h2>
@@ -77,11 +88,11 @@ const Page = async ({ params }: any) => {
         ))}
       </div>
       <AllAnswers
-        userId={mongoUser ? mongoUser._id : null}
+        userId={mongoUser ? mongoUser._id : ""}
         questionId={parsedQuestion._id}
         totalAnswers={parsedQuestion.answers.length}
       />
-      <AnswerForm authorId={mongoUser ? mongoUser._id : null} question={parsedQuestion._id} />
+      <AnswerForm authorId={mongoUser ? mongoUser._id : ""} question={parsedQuestion._id} />
     </>
   );
 }

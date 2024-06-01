@@ -36,7 +36,7 @@ const AllAnswers = async ({ questionId, userId, totalAnswers }: {
   flter?: string
 }) => {
   const result = await getAllAnswers({ questionId });
-  const answers: IAnswer[] = await JSON.parse(JSON.stringify(result.answers));
+  const answers: IAnswer[] = JSON.parse(JSON.stringify(result.answers));
   return (
     <div className='mt-11'>
       <div className='flex items-center justify-between'>
@@ -46,7 +46,7 @@ const AllAnswers = async ({ questionId, userId, totalAnswers }: {
       </div>
       <div>
         {answers.map((answer: IAnswer) => {
-          return <AnswerCard key={answer._id} answerId={answer._id} questionId={answer.question} userId={userId} content={answer.content} createdAt={answer.createdAt} author={answer.author} />
+          return <AnswerCard key={answer._id} answerId={answer._id} upvotes={answer.upvotes} downvotes={answer.downvotes} questionId={answer.question} userId={userId} content={answer.content} createdAt={answer.createdAt} author={answer.author} />
         })}
       </div>
     </div>

@@ -11,6 +11,8 @@ import {
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
+import Answer from "@/database/asnwer.model";
+import Tag from "@/database/tag.model";
 
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
@@ -68,18 +70,56 @@ export async function deleteUser(userData: DeleteUserParams) {
     connectToDB();
     const { clerkId } = userData;
     const user = await User.findOne({ clerkId });
+
     if (!user) {
       throw new Error("User not found!");
     }
-    // const userQuestionIds = await Question.find({ author: user._id }).distinct(
-    //   "_id"
-    // );
 
-    await Question.deleteMany({ author: user._id });
-    const deletedUser = await User.findOneAndDelete(user._id);
+    // Find all questions authored by the user
+    const userQuestionIds = await Question.find({ author: user._id }).distinct('_id');
+    console.log("User Question IDs:", userQuestionIds);
+
+    // Find all answers authored by the user
+    const userAnswerIds = await Answer.find({ author: user._id }).distinct('_id');
+    console.log("User Answer IDs:", userAnswerIds);
+
+    // Delete user's questions
+    const questionsDeleted = await Question.deleteMany({ author: user._id });
+    console.log("Questions Deleted:", questionsDeleted);
+
+    // Delete user's answers
+    const answersDeleted = await Answer.deleteMany({ author: user._id });
+    console.log("Answers Deleted:", answersDeleted);
+
+    // Update questions by removing references to deleted answers
+    const questionsUpdated = await Question.updateMany(
+      { answers: { $in: userAnswerIds } },
+      { $pull: { answers: { $in: userAnswerIds } } }
+    );
+    console.log("Questions Updated to Remove Answer References:", questionsUpdated);
+
+    // Update tags by removing references to deleted questions
+    const tagsUpdated = await Tag.updateMany(
+      { questions: { $in: userQuestionIds } },
+      { $pull: { questions: { $in: userQuestionIds } } }
+    );
+    console.log("Tags Updated to Remove Question References:", tagsUpdated);
+
+    // Delete tags that no longer have any questions associated with them
+    const tagsDeleted = await Tag.deleteMany({ questions: { $size: 0 } });
+    console.log("Tags Deleted:", tagsDeleted);
+
+    // Delete the user
+    const deletedUser = await User.findOneAndDelete({ _id: user._id });
+    console.log("User Deleted:", deletedUser);
+
+    revalidatePath("/");
     revalidatePath("/community");
+    revalidatePath("/tags");
+
     return deletedUser;
   } catch (err) {
     console.log(err);
+    throw new Error("Error deleting user and related data");
   }
 }
