@@ -58,6 +58,7 @@ export async function updateUser(userData: UpdateUserParams) {
       new: true,
     });
     revalidatePath("/community");
+    revalidatePath("/");
     revalidatePath(path);
     return updatedUser;
   } catch (err) {

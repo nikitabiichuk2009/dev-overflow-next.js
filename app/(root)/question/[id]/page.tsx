@@ -65,7 +65,7 @@ const Page = async ({ params }: any) => {
           <Votes 
             type="question"
             itemId={parsedQuestion._id} 
-            userId={mongoUser ? mongoUser._id : "null"}
+            userId={mongoUser ? mongoUser._id : ""}
             upvotes={parsedQuestion.upvotes.length}
             hasUpvoted={mongoUser ? parsedQuestion.upvotes.includes(mongoUser._id): false}
             downvotes={parsedQuestion.downvotes.length}
