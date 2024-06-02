@@ -5,7 +5,7 @@ import { GetTopInteractedTagsParams, GetAllTagsParams } from "./shared.types";
 export async function getTagsByUserId(params: GetTopInteractedTagsParams) {
   const { userId, limit = 3 } = params;
   try {
-    await connectToDB();
+    await await connectToDB();
     const tags = await Tag.find({ followers: userId }).limit(limit);
     return tags;
   } catch (err) {
@@ -16,7 +16,7 @@ export async function getTagsByUserId(params: GetTopInteractedTagsParams) {
 
 export async function getAllTags(params: GetAllTagsParams) {
   try {
-    await connectToDB();
+    await await connectToDB();
     const tags = await Tag.aggregate([
       {
         $addFields: {
@@ -36,7 +36,7 @@ export async function getAllTags(params: GetAllTagsParams) {
 
 export async function getPopularTags() {
   try {
-    await connectToDB();
+    await await connectToDB();
     const tags = await Tag.aggregate([
       {
         $addFields: {

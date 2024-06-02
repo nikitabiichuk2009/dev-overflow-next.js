@@ -15,7 +15,7 @@ import mongoose from "mongoose";
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
-    connectToDB();
+    await connectToDB();
     const questions = await Question.find({})
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
@@ -29,7 +29,7 @@ export async function getQuestions(params: GetQuestionsParams) {
 
 export async function getPopularQuestions() {
   try {
-    connectToDB();
+    await connectToDB();
     const questions = await Question.find({})
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
@@ -51,7 +51,6 @@ export async function createQuestion(params: CreateQuestionParams) {
       title,
       content,
       author,
-      views: 0,
     });
 
     const tagDocuments = [];
@@ -102,7 +101,7 @@ export async function createQuestion(params: CreateQuestionParams) {
 
 export async function getQuestionById(params: GetQuestionByIdParams) {
   try {
-    connectToDB();
+    await connectToDB();
     const { questionId } = params;
     const question = await Question.findById(questionId)
       .populate({ path: "tags", model: Tag })
@@ -116,78 +115,70 @@ export async function getQuestionById(params: GetQuestionByIdParams) {
 
 export async function upvoteQuestion(params: QuestionVoteParams) {
   try {
-    connectToDB();
+    await connectToDB();
+    
     const { questionId, userId, path, hasupVoted } = params;
     const questionObjectId = new mongoose.Types.ObjectId(questionId);
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    const question = await Question.findById(questionObjectId);
-    const user = await User.findById(userObjectId);
+    // Determine the update operation based on whether the user has already upvoted
+    const update = hasupVoted
+      ? { $pull: { upvotes: userObjectId } } // Remove upvote
+      : { $addToSet: { upvotes: userObjectId }, $pull: { downvotes: userObjectId } }; // Add upvote and remove downvote if present
 
-    if (!question || !user) {
-      throw new Error('Question or User not found');
+    // Find the question by ID and apply the update, returning the updated document
+    const question = await Question.findByIdAndUpdate(
+      questionObjectId,
+      update,
+      { new: true } // Return the updated document
+    );
+
+    // If the question is not found, throw an error
+    if (!question) {
+      throw new Error('Question not found!');
     }
 
-    // Check if the user has already upvoted the question
-    if (hasupVoted) {
-      // Remove upvote
-      await Question.updateOne(
-        { _id: questionObjectId },
-        { $pull: { upvotes: userObjectId } }
-      );
-    } else {
-      // Add upvote and remove downvote if present
-      await Question.updateOne(
-        { _id: questionObjectId },
-        {
-          $addToSet: { upvotes: userObjectId },
-          $pull: { downvotes: userObjectId }
-        }
-      );
-    }
-
+    // Revalidate the path to ensure the UI is up-to-date
     revalidatePath(path);
   } catch (err) {
+    // Log the error and throw a new error with a descriptive message
     console.log(err);
-    throw new Error("Error updating upvotes for a question");
+    throw new Error('Error updating upvotes for the question');
   }
 }
 
 export async function downvoteQuestion(params: QuestionVoteParams) {
   try {
-    connectToDB();
+    // Establish a connection to the database
+    await connectToDB();
+    
     const { questionId, userId, path, hasdownVoted } = params;
     const questionObjectId = new mongoose.Types.ObjectId(questionId);
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    const question = await Question.findById(questionObjectId);
-    const user = await User.findById(userObjectId);
+    // Determine the update operation based on whether the user has already downvoted
+    const update = hasdownVoted
+      ? { $pull: { downvotes: userObjectId } } // Remove downvote
+      : { $addToSet: { downvotes: userObjectId }, $pull: { upvotes: userObjectId } }; // Add downvote and remove upvote if present
 
-    if (!question || !user) {
-      throw new Error('Question or User not found');
+    // Find the question by ID and apply the update, returning the updated document
+    const question = await Question.findByIdAndUpdate(
+      questionObjectId,
+      update,
+      { new: true } // Return the updated document
+    );
+
+    // If the question is not found, throw an error
+    if (!question) {
+      throw new Error('Question not found!');
     }
 
-    // Check if the user has already downvoted the question
-    if (hasdownVoted) {
-      // Remove downvote
-      await Question.updateOne(
-        { _id: questionObjectId },
-        { $pull: { downvotes: userObjectId } }
-      );
-    } else {
-      // Add downvote and remove upvote if present
-      await Question.updateOne(
-        { _id: questionObjectId },
-        {
-          $addToSet: { downvotes: userObjectId },
-          $pull: { upvotes: userObjectId }
-        }
-      );
-    }
-
+    // Revalidate the path to ensure the UI is up-to-date
     revalidatePath(path);
   } catch (err) {
+    // Log the error and throw a new error with a descriptive message
     console.log(err);
-    throw new Error("Error updating downvotes for a question");
+    throw new Error('Error updating downvotes for the question');
   }
 }
+

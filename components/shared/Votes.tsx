@@ -1,12 +1,14 @@
 'use client';
 import { downvoteAnswer, upvoteAnswer } from '@/lib/actions/answer.actions';
+import { viewQuestion } from '@/lib/actions/interaction.actions';
 import { downvoteQuestion, upvoteQuestion } from '@/lib/actions/question.actions';
-import { AnswerVoteParams, QuestionVoteParams } from '@/lib/actions/shared.types';
+import { AnswerVoteParams, QuestionVoteParams, ToggleSaveQuestionParams } from '@/lib/actions/shared.types';
+import { saveQuestion } from '@/lib/actions/user.actions';
 import { formatLargeNumber } from '@/lib/utils';
 import { useToast } from '@chakra-ui/react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface VotesProps {
   type: string; 
@@ -34,7 +36,29 @@ const Votes = ({
   const toast = useToast();
   const router = useRouter();
   const handleSave = () => {
-
+    if (!userId) {
+      router.push('/sign-in');
+      toast({
+        title: 'To save question, you need to log in',
+        status: 'info',
+        isClosable: true,
+      });
+      return;
+    }
+    const params:ToggleSaveQuestionParams = {
+      userId,
+      questionId: itemId,
+      hasSaved,
+      path:pathName
+    };
+    saveQuestion(params);
+    if (!hasSaved) {
+      toast({
+        title: 'Successfully saved question into your collection',
+        status: 'success',
+        isClosable: true,
+      })
+    }
   }
 
   const handleVote = async (voteType: string) => {
@@ -85,7 +109,9 @@ const Votes = ({
       }
     } 
   }
-
+  useEffect(() => {
+    viewQuestion({questionId: itemId, userId})
+  }, [itemId, userId, pathName, router])
   if (error){
     return <p className='body-semibold text-red-500'>{error}</p>
   }

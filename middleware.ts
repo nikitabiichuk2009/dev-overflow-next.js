@@ -13,7 +13,7 @@ const publicRoutes = [
 ];
 
 // Matchers for protected routes
-const isProtectedRoute = createRouteMatcher(["/ask-question"]);
+const isProtectedRoute = createRouteMatcher(["/ask-question", "/collection"]);
 const isPublicRoute = createRouteMatcher(publicRoutes);
 
 export default clerkMiddleware((auth, req) => {
