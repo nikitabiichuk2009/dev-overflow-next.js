@@ -34,8 +34,8 @@ export default async function Home() {
         <NoResults
           title="Error fetching questions"
           description="There was an error fetching the questions. Please try again later."
-          buttonTitle='Let me Try again'
-          href='/'
+          buttonTitle='Go back'
+          href='../'
         />
       </div>
     );

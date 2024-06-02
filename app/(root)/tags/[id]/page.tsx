@@ -1,11 +1,8 @@
-import LocalSearchBar from "@/components/shared/search/LocalSearchBar";
-import Filter from "@/components/shared/filters/Filter";
-import { HomePageFilters } from "@/constants/filters";
-import QuestionCard from "@/components/cards/QuestionCard";
-import NoResults from "@/components/shared/NoResults";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { getSavedQuestions } from "@/lib/actions/user.actions";
+import QuestionCard from '@/components/cards/QuestionCard';
+import NoResults from '@/components/shared/NoResults';
+import LocalSearchBar from '@/components/shared/search/LocalSearchBar';
+import { fetchQuestionsByTagId } from '@/lib/actions/tag.actions';
+import React from 'react'
 
 interface Question {
   _id: string;
@@ -18,49 +15,45 @@ interface Question {
   createdAt: Date;
 }
 
-export default async function Collection() {
-  let savedQuestionsParsed = [];
-  const { userId } = auth();
-  if (!userId) {
-    redirect("/sign-in")
-  }
+const Page = async ({ params } : any) => {
+  let tagTitle = '';
+  let questions = [];
+
   try {
-    const result = await getSavedQuestions({ clerkId: userId });
-    savedQuestionsParsed = JSON.parse(JSON.stringify(result?.savedQuestions));
-    // console.log(savedQuestionsParsed);
+    const tagId = params.id;
+    console.log(tagId)
+    const result = await fetchQuestionsByTagId({ tagId });
+    const parsedResult = JSON.parse(JSON.stringify(result));
+    tagTitle = parsedResult.tagTitle;
+    questions = parsedResult.questions;
   } catch (err) {
-    console.error('Failed to fetch questions', err);
+    console.error('Failed to fetch questions by tag ID', err);
     return (
       <div>
-        <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
+        <h1 className="h1-bold text-dark100_light900">Tag Details</h1>
         <NoResults
-          title="Error fetching your saved questions"
-          description="There was an error fetching your saved questions. Please try again later."
-          buttonTitle='Go back'
-          href='../'
+          title="Error fetching tag"
+          description="There was an error fetching the tag. Please try again later."
+          buttonTitle="Go back"
+          href="/tags"
         />
       </div>
     );
   }
-
-  return (
+   return (
     <>
-      <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
+      <h1 className="h1-bold text-dark100_light900">{tagTitle}</h1>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearchBar
-          searchFor="Search for saved questions"
+          searchFor="Search questions by tag"
           iconPosition="left"
           imgSrc="/assets/icons/search.svg"
           otherClasses="flex-1"
         />
-        <Filter
-          filters={HomePageFilters}
-          otherClasses="min-h-[56px] sm:min-w-[170px]"
-        />
       </div>
       <div className="mt-10 flex w-full flex-col gap-6">
-        {savedQuestionsParsed.length > 0 ?
-          savedQuestionsParsed.map((question: Question) => {
+        {questions.length > 0 ?
+          questions.map((question: Question) => {
             return <QuestionCard
               key={question._id}
               id={question._id}
@@ -81,5 +74,7 @@ export default async function Collection() {
             Your curiosity could spark new insights and learning for everyone. Get involved and make a difference! 💡" />}
       </div>
     </>
-  );
+  )
 }
+
+export default Page;

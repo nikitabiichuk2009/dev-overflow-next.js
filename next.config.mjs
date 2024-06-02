@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false, // Disable React Strict Mode
   experimental: {
     mdxRs: true,
     serverComponentsExternalPackages: ["mongoose"],
