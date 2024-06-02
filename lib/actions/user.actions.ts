@@ -47,6 +47,7 @@ export async function createUser(userData: CreateUserParams) {
 
     const newUser = await User.create(userData);
     revalidatePath("/community");
+    revalidatePath("/");
     return newUser;
   } catch (err) {
     console.log(err);
