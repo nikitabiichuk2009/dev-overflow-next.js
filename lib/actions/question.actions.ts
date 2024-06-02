@@ -51,6 +51,7 @@ export async function createQuestion(params: CreateQuestionParams) {
       title,
       content,
       author,
+      views: 0
     });
 
     const tagDocuments = [];

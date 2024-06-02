@@ -77,7 +77,7 @@ export default async function Home() {
             buttonTitle="Browse Questions"
             href="/"
             description="It looks like you haven't saved any questions yet. 
-            🌟 Save interesting questions to revisit them later, or ask your own to start a new conversation. 
+            😔 Save interesting questions to revisit them later, or ask your own to start a new conversation. 
             Your curiosity could spark new insights and learning for everyone. Get involved and make a difference! 💡" />}
       </div>
     </>

@@ -1,4 +1,4 @@
-// import Question from "@/database/question.model";
+import Question from "@/database/question.model";
 import mongoose from "mongoose";
 
 let isConnected: boolean = false;
@@ -20,12 +20,12 @@ export const connectToDB = async () => {
     await mongoose.connect(process.env.MONGO_DB_URL, {
       dbName: "devflow_nextjs",
     });
-    // const result = await Question.updateMany(
-    //   { views: { $type: "array" } },
-    //   [{ $set: { views: { $arrayElemAt: ["$views", 0] } } }]
-    // );
+    const result = await Question.updateMany(
+      { views: { $type: "array" } },
+      [{ $set: { views: { $arrayElemAt: ["$views", 0] } } }]
+    );
 
-    // console.log("Update result:", result);
+    console.log("Update result:", result);
     isConnected = true;
     console.log("DB is connected!");
   } catch (err) {
