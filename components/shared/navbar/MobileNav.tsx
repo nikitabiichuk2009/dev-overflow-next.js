@@ -8,18 +8,23 @@ import {
 } from "@/components/ui/sheet"
 import Image from 'next/image'
 import Link from 'next/link'
-import { SignedOut, SignedIn, useClerk } from '@clerk/nextjs'
+import { SignedOut, SignedIn, useClerk, useAuth } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { sidebarLinks } from '@/constants'
 import { usePathname } from 'next/navigation'
 
 const NavContent = () => {
   const pathName = usePathname();
+  const { userId } = useAuth();
   return <section className='flex h-full flex-col gap-6 pt-16'>
     {sidebarLinks.map((link) => {
       const isActive = pathName === link.route || (link.label !== "Home" && pathName.startsWith(link.route));
-      return (<SheetClose asChild key={link.imgURL}>
-        <Link href={link.route}
+      const route = link.label === 'Profile' ? `/profile/${userId}` : link.route;
+          if (link.label === 'Profile' && !userId) return null; // Conditionally render profile link
+      return (
+      <SheetClose asChild key={link.imgURL}>
+        <Link 
+          href={route}
           className={`${isActive ? "primary-gradient  text-light-900" : "text-dark300_light900"} 
           flex items-center justify-start gap-4 rounded-lg bg-transparent p-4 hover:bg-light-800 dark:hover:bg-dark-300`}>
           <Image src={link.imgURL} alt={link.label} width={20} height={20} className={`${isActive ? "" : "invert-colors"}`} />

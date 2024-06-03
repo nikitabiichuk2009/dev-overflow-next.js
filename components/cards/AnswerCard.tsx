@@ -55,7 +55,7 @@ const AnswerCard = ({ author, questionId, answerId, upvotes, downvotes, createdA
     return (
       <NoResults
         title="Error deleting your answer"
-        description="There was an error while deleting your answer. Please try again later."
+        description="There was an error while deleting your answer.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
         buttonTitle='Go back'
         href='../'
       />
@@ -77,7 +77,7 @@ const AnswerCard = ({ author, questionId, answerId, upvotes, downvotes, createdA
           <div className='flex justify-end'>
             <Votes
               type="answer"
-              itemId={answerId} 
+              itemId={answerId}
               userId={userId}
               upvotes={upvotes.length}
               hasUpvoted={upvotes.includes(userId)}

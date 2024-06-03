@@ -35,7 +35,7 @@ const RightSideBar = async () => {
       <div>
         {hotQuestions.length > 0 ? (
           <>
-            <h3 className='h3-bold text-dark200_light900'>Top Questions</h3>
+            <h3 className='h3-bold text-dark200_light900'>Recent Questions</h3>
             <div className='mt-7 flex w-full flex-col gap-1'>
               {hotQuestions.map((question: Question) => (
                 <Link key={question._id} href={`/question/${question._id}`} className='flex cursor-pointer items-center justify-between gap-7 rounded-md p-3 hover:bg-light-800 dark:hover:bg-dark-300'>
@@ -46,7 +46,7 @@ const RightSideBar = async () => {
             </div>
           </>
         ) : (
-          <h3 className='h3-bold text-dark200_light900'>No Top Questions</h3>
+          <h3 className='h3-bold text-dark200_light900'>No Recent Questions</h3>
         )}
       </div>
       <div className='mt-12'>

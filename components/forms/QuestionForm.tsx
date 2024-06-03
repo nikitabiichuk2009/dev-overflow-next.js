@@ -19,51 +19,75 @@ import { QuestionsSchema } from "@/lib/validations"
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
 import { useTheme } from '@/context/ThemeProvider'
-import { createQuestion } from '@/lib/actions/question.actions';
+import { createQuestion, editQuestion } from '@/lib/actions/question.actions';
 import { useRouter } from 'next/navigation';
 import NoResults from '../shared/NoResults';
 import { useToast } from '@chakra-ui/react';
 
-const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
+const QuestionForm = ({ mongoUserId, initialValues, type }: { mongoUserId?: string, type: string, initialValues?: any }) => {
   const router = useRouter();
   const toast = useToast()
   const { mode } = useTheme();
   const [editorKey, setEditorKey] = useState(0);
   const [error, setError] = useState("");
-  const type: string = 'create';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const editorRef = useRef(null);
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: "",
-      explanation: "",
-      tags: [],
+      title: initialValues.title || "",
+      explanation: initialValues.explanation || "",
+      tags: initialValues.tags ? initialValues.tags.map((tag: any) => tag.name) : [],
     },
   })
 
   async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
-    setIsSubmitting(true);
-    try {
-      await createQuestion({
-        title: values.title,
-        content: values.explanation,
-        tags: values.tags,
-        author: JSON.parse(mongoUserId),
-        path: "/"
-      });
-      router.push("/")
-      toast({
-        title: 'Successfully created a question',
-        status: 'success',
-        isClosable: true,
-      })
-      setIsSubmitting(false)
-    } catch (err) {
-      console.log(err)
-      setError("Error occured while posting the question!")
-      setIsSubmitting(false)
+    if (type === "edit") {
+      setIsSubmitting(true);
+      try {
+        await editQuestion({
+          questionId: initialValues.id,
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          path: "/"
+        });
+        router.push("/")
+        toast({
+          title: 'Successfully edited a question',
+          status: 'success',
+          isClosable: true,
+        })
+        setIsSubmitting(false)
+      } catch (err) {
+        console.log(err)
+        setError("Error occured while editing the question!")
+        setIsSubmitting(false)
+      }
+    } else {
+      setIsSubmitting(true);
+      try {
+        await createQuestion({
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          author: JSON.parse(mongoUserId!),
+          path: "/"
+        });
+        router.push("/")
+        toast({
+          title: 'Successfully created a question',
+          status: 'success',
+          isClosable: true,
+        })
+        setIsSubmitting(false)
+      } catch (err) {
+        console.log(err)
+        setError("Error occured while posting the question!")
+        setIsSubmitting(false)
+      }
     }
+
   }
   useEffect(() => {
     setEditorKey(prevKey => prevKey + 1); // Update the editor key to re-render the editor when the mode changes
@@ -101,8 +125,8 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
   if (error) {
     return (
       <NoResults
-        title="Error submitting question"
-        description="There was an error while submitting your question. Please try again later."
+        title="Error submitting your question"
+        description="There was an error while submitting your question. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
         buttonTitle='Go back'
         href='../'
       />
@@ -148,11 +172,12 @@ const QuestionForm = ({ mongoUserId }: { mongoUserId: string }) => {
                     apiKey={process.env.NEXT_PUBLIC_TINY_EDITOR_API_KEY}
                     onInit={(evt, editor) => {
                       // @ts-ignore
-                      editorRef.current = editor
+                      editorRef.current = editor;
+                      editor.setContent(field.value); // Set the initial value for the editor
                     }}
                     onBlur={field.onBlur}
                     onEditorChange={(content) => field.onChange(content)}
-                    initialValue=""
+                    initialValue={field.value}
                     init={{
                       height: 350,
                       menubar: false,

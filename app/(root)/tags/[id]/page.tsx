@@ -15,7 +15,7 @@ interface Question {
   createdAt: Date;
 }
 
-const Page = async ({ params } : any) => {
+const Page = async ({ params }: any) => {
   let tagTitle = '';
   let questions = [];
 
@@ -33,14 +33,14 @@ const Page = async ({ params } : any) => {
         <h1 className="h1-bold text-dark100_light900">Tag Details</h1>
         <NoResults
           title="Error fetching tag"
-          description="There was an error fetching the tag. Please try again later."
+          description="There was an error fetching the tag.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle="Go back"
           href="/tags"
         />
       </div>
     );
   }
-   return (
+  return (
     <>
       <h1 className="h1-bold text-dark100_light900">{tagTitle}</h1>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">

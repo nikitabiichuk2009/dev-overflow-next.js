@@ -33,7 +33,7 @@ export default async function Home() {
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
         <NoResults
           title="Error fetching questions"
-          description="There was an error fetching the questions. Please try again later."
+          description="There was an error fetching the questions.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle='Go back'
           href='../'
         />

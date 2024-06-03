@@ -4,11 +4,12 @@ import { sidebarLinks } from '@/constants';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { SignedIn, SignedOut, useClerk } from '@clerk/nextjs';
+import { SignedIn, SignedOut, useAuth, useClerk } from '@clerk/nextjs';
 import { Button, useToast } from '@chakra-ui/react';
 
 const LeftSideBar = () => {
-  const toast = useToast()
+  const toast = useToast();
+  const { userId } = useAuth();
   const { signOut } = useClerk();
   const pathName = usePathname();
 
@@ -19,10 +20,12 @@ const LeftSideBar = () => {
       <div className='flex flex-1 flex-col gap-6'>
         {sidebarLinks.map((link) => {
           const isActive = pathName === link.route || (link.label !== "Home" && pathName.startsWith(link.route));
+          const route = link.label === 'Profile' ? `/profile/${userId}` : link.route;
+          if (link.label === 'Profile' && !userId) return null; // Conditionally render profile link
           return (
             <Link
               key={link.label}
-              href={link.route}
+              href={route}
               className={`${isActive ? "primary-gradient text-light-900" : "text-dark300_light900"} 
               flex items-center justify-start gap-4 rounded-lg bg-transparent p-4 transition-colors duration-300 ease-in-out hover:bg-light-800 dark:hover:bg-dark-400`}
             >

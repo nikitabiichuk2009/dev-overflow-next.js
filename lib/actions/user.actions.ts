@@ -5,11 +5,12 @@ import { connectToDB } from "../mongose";
 import {
   CreateUserParams,
   DeleteUserParams,
-  GetUserByIdParams,
   UpdateUserParams,
   GetAllUsersParams,
   GetSavedQuestionsParams,
   ToggleSaveQuestionParams,
+  GetUserStatsParams,
+  GetUserByIdParams,
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
@@ -19,7 +20,7 @@ import { FilterQuery } from "mongoose";
 
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
-    await await connectToDB();
+    await connectToDB();
     // const { page = 1, pageSize = 20, filter, searchQuery} = params;
     const users = await User.find({}).sort({ joinDate: -1 });
     return { users };
@@ -29,15 +30,89 @@ export async function getAllUsers(params: GetAllUsersParams) {
   }
 }
 
+export async function getUserQuestions(params: GetUserStatsParams) {
+  try {
+    await connectToDB();
+    const { userId, page = 1, pageSize = 10 } = params;
+    const skip = (page - 1) * pageSize;
+    const questions = await Question.find({ author: userId })
+      .populate("tags")
+      .populate("author")
+      .sort({ views: -1, upvotes: -1 })
+      .skip(skip)
+      .limit(pageSize)
+      .exec();
+
+    return questions;
+  } catch (error) {
+    console.error("Error fetching user questions:", error);
+    throw new Error("Error fetching user questions");
+  }
+}
+
+export async function getUserAnswers(params: GetUserStatsParams) {
+  try {
+    await connectToDB();
+    const { userId, page = 1, pageSize = 10 } = params;
+    const skip = (page - 1) * pageSize;
+    const answers = await Answer.find({ author: userId })
+      .populate({
+        path: "question",
+        populate: {
+          path: "tags",
+        },
+      })
+      .populate("author")
+      .sort({ createdAt: -1, upvotes: -1 })
+      .skip(skip)
+      .limit(pageSize)
+      .exec();
+
+    return answers;
+  } catch (error) {
+    console.error("Error fetching user answers:", error);
+    throw new Error("Error fetching user answers");
+  }
+}
+
+export async function getUserTags(params: GetUserStatsParams) {
+  try {
+    await connectToDB();
+    const { userId } = params;
+    let tags = await Tag.find({ followers: userId }).exec();
+    tags = tags.sort((a, b) => b.questions.length - a.questions.length);
+    return tags;
+  } catch (error) {
+    console.error("Error fetching user tags:", error);
+    throw new Error("Error fetching user tags");
+  }
+}
+
 export async function getUserById(params: GetUserByIdParams) {
   try {
     await connectToDB();
     const { userId } = params;
 
+    // Find the user by clerkId
     const user = await User.findOne({ clerkId: userId });
-    return user;
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Count the number of questions posted by the user
+    const questionsCount = await Question.countDocuments({ author: user._id });
+
+    // Count the number of answers posted by the user
+    const answersCount = await Answer.countDocuments({ author: user._id });
+
+    return {
+      ...user.toObject(),
+      questionsCount,
+      answersCount,
+    };
   } catch (err) {
     console.log(err);
+    throw new Error("Error fetching user data");
   }
 }
 
@@ -58,13 +133,12 @@ export async function updateUser(userData: UpdateUserParams) {
   try {
     await connectToDB();
     const { clerkId, updateData, path } = userData;
-    const updatedUser = await User.findOneAndUpdate({ clerkId }, updateData, {
+    await User.findOneAndUpdate({ clerkId }, updateData, {
       new: true,
     });
     revalidatePath("/community");
     revalidatePath("/");
     revalidatePath(path);
-    return updatedUser;
   } catch (err) {
     console.log(err);
   }
@@ -81,11 +155,15 @@ export async function deleteUser(userData: DeleteUserParams) {
     }
 
     // Find all questions authored by the user
-    const userQuestionIds = await Question.find({ author: user._id }).distinct('_id');
+    const userQuestionIds = await Question.find({ author: user._id }).distinct(
+      "_id"
+    );
     console.log("User Question IDs:", userQuestionIds);
 
     // Find all answers authored by the user
-    const userAnswerIds = await Answer.find({ author: user._id }).distinct('_id');
+    const userAnswerIds = await Answer.find({ author: user._id }).distinct(
+      "_id"
+    );
     console.log("User Answer IDs:", userAnswerIds);
 
     // Delete user's questions
@@ -101,7 +179,10 @@ export async function deleteUser(userData: DeleteUserParams) {
       { answers: { $in: userAnswerIds } },
       { $pull: { answers: { $in: userAnswerIds } } }
     );
-    console.log("Questions Updated to Remove Answer References:", questionsUpdated);
+    console.log(
+      "Questions Updated to Remove Answer References:",
+      questionsUpdated
+    );
 
     // Update tags by removing references to deleted questions
     const tagsUpdated = await Tag.updateMany(
@@ -129,7 +210,6 @@ export async function deleteUser(userData: DeleteUserParams) {
   }
 }
 
-
 export async function saveQuestion(params: ToggleSaveQuestionParams) {
   try {
     await connectToDB();
@@ -140,11 +220,7 @@ export async function saveQuestion(params: ToggleSaveQuestionParams) {
       ? { $pull: { savedPosts: questionId } }
       : { $addToSet: { savedPosts: questionId } };
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      update,
-      { new: true }
-    );
+    const user = await User.findByIdAndUpdate(userId, update, { new: true });
 
     if (!user) {
       throw new Error("User not found!");
@@ -162,24 +238,24 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     await connectToDB();
     const { clerkId, searchQuery } = params;
     const query: FilterQuery<typeof Question> = searchQuery
-      ? { title: { $regex: new RegExp(searchQuery, 'i') } }
-      : { };
+      ? { title: { $regex: new RegExp(searchQuery, "i") } }
+      : {};
     // Find the user by clerkId and populate the savedPosts field
     const user = await User.findOne({ clerkId })
       .populate({
-        path: 'savedPosts',
+        path: "savedPosts",
         match: query,
         options: { sort: { createdAt: -1 } },
         populate: [
-          { path: 'author', model: 'User' },
-          { path: 'tags', model: 'Tag' }
-        ]
+          { path: "author", model: "User" },
+          { path: "tags", model: "Tag" },
+        ],
       })
       .exec();
     if (!user) {
       throw new Error("User not found!");
     }
-    const savedQuestions = user.savedPosts
+    const savedQuestions = user.savedPosts;
     // Return the saved questions
     return { savedQuestions };
   } catch (err) {

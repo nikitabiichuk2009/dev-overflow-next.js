@@ -42,7 +42,7 @@ const Page = async ({ params }: any) => {
         <div className='mt-12 flex flex-wrap gap-4'>
           <NoResults
             title="Error fetching question"
-            description="There was an error fetching the question. Please try again later."
+            description="There was an error fetching the question.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
             buttonTitle='Go back'
             href='../'
           />
@@ -62,16 +62,16 @@ const Page = async ({ params }: any) => {
             <h3 className='h3-semibold text-dark300_light700'>{parsedQuestion.author.name}</h3>
           </Link>
           <div className='flex justify-end'>
-          <Votes 
-            type="question"
-            itemId={parsedQuestion._id} 
-            userId={mongoUser ? mongoUser._id : ""}
-            upvotes={parsedQuestion.upvotes.length}
-            hasUpvoted={mongoUser ? parsedQuestion.upvotes.includes(mongoUser._id): false}
-            downvotes={parsedQuestion.downvotes.length}
-            hasDownvoted={mongoUser ? parsedQuestion.downvotes.includes(mongoUser._id): false}
-            hasSaved={mongoUser ? mongoUser.savedPosts.includes(parsedQuestion._id): false}
-          />
+            <Votes
+              type="question"
+              itemId={parsedQuestion._id}
+              userId={mongoUser ? mongoUser._id : ""}
+              upvotes={parsedQuestion.upvotes.length}
+              hasUpvoted={mongoUser ? parsedQuestion.upvotes.includes(mongoUser._id) : false}
+              downvotes={parsedQuestion.downvotes.length}
+              hasDownvoted={mongoUser ? parsedQuestion.downvotes.includes(mongoUser._id) : false}
+              hasSaved={mongoUser ? mongoUser.savedPosts.includes(parsedQuestion._id) : false}
+            />
           </div>
         </div>
         <h2 className='h2-semibold text-dark200_light900 mt-3.5 w-full text-left'>{parsedQuestion.title}</h2>

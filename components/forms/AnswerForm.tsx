@@ -86,7 +86,7 @@ const AnswerForm = ({ authorId, question }: { authorId: string, question: string
     return (
       <NoResults
         title="Error submitting answer"
-        description="There was an error while submitting your answer. Please try again later."
+        description="There was an error while submitting your answer.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
         buttonTitle='Go back'
         href='../'
       />
