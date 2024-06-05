@@ -35,9 +35,9 @@ const QuestionForm = ({ mongoUserId, initialValues, type }: { mongoUserId?: stri
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: initialValues.title || "",
-      explanation: initialValues.explanation || "",
-      tags: initialValues.tags ? initialValues.tags.map((tag: any) => tag.name) : [],
+      title: initialValues?.title || "",
+      explanation: initialValues?.explanation || "",
+      tags: initialValues?.tags ? initialValues.tags.map((tag: any) => tag.name) : [],
     },
   })
 

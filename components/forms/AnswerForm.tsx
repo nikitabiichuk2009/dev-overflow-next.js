@@ -16,11 +16,13 @@ import { createAnswer } from '@/lib/actions/answer.actions';
 import { usePathname, useRouter } from 'next/navigation';
 
 
-const AnswerForm = ({ authorId, question }: { authorId: string, question: string }) => {
+const AnswerForm = ({ authorId, question, questionId }: { authorId: string, question: string, questionId: string }) => {
   const path = usePathname();
   const router = useRouter();
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingAI, setIsSubmittingAI] = useState(false);
+  const [aiError, setAIError] = useState(false);
   const [error, setError] = useState("")
   const { mode } = useTheme()
   const [editorKey, setEditorKey] = useState(0);
@@ -33,9 +35,13 @@ const AnswerForm = ({ authorId, question }: { authorId: string, question: string
   });
   const editorRef = useRef(null);
 
+
   useEffect(() => {
     setEditorKey(prevKey => prevKey + 1); // Update the editor key to re-render the editor when the mode changes
   }, [mode]);
+
+
+
   const onSubmit = async (values: z.infer<typeof AnswerShema>) => {
     if (!authorId) {
       router.push("/sign-in")
@@ -49,7 +55,7 @@ const AnswerForm = ({ authorId, question }: { authorId: string, question: string
     try {
       await createAnswer({
         author: authorId,
-        question,
+        question: questionId,
         content: values.answer,
         path
       })
@@ -81,7 +87,38 @@ const AnswerForm = ({ authorId, question }: { authorId: string, question: string
         isClosable: true,
       })
     }
+    try {
+      setIsSubmittingAI(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/chatgpt`, {
+        method: "POST",
+        body: JSON.stringify({ question })
+      });
+      const aiAnswer = await response.json();
+      const formattedAiAnswer = aiAnswer.reply
+        .replace(/\n/g, "<br />")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/__(.*?)__/g, "<u>$1</u>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        ;
+      if (editorRef.current && formattedAiAnswer) {
+        const editor = editorRef.current as any;
+        editor.setContent(formattedAiAnswer);
+        setIsSubmittingAI(false);
+        toast({
+          title: "Successfuly generated an AI answer.",
+          isClosable: true,
+          status: 'success',
+        })
+      }
+    } catch (err) {
+      console.log(err);
+      setIsSubmittingAI(false)
+      setAIError(true);
+    }
   }
+
+
+
   if (error) {
     return (
       <NoResults
@@ -99,9 +136,9 @@ const AnswerForm = ({ authorId, question }: { authorId: string, question: string
         <h4 className="text-dark400_light800 text-[16px] font-semibold leading-[20.8px]">
           Write your answer here
         </h4>
-        <Button onClick={generateAIAnswer} className='btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none'>
+        <Button onClick={generateAIAnswer} disabled={isSubmittingAI || aiError} className='btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none'>
           <Image src="/assets/icons/stars.svg" alt="Star" width={12} height={12} className='object-contain' />
-          Generate an AI Answer
+          {aiError ? <span className='text-red-500'>Error generating an AI answer</span> : isSubmittingAI ? "Generating..." : "Generate an AI answer"}
         </Button>
       </div>
       <Form {...form}>

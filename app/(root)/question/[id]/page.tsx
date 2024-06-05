@@ -92,7 +92,7 @@ const Page = async ({ params }: any) => {
         questionId={parsedQuestion._id}
         totalAnswers={parsedQuestion.answers.length}
       />
-      <AnswerForm authorId={mongoUser ? mongoUser._id : ""} question={parsedQuestion._id} />
+      <AnswerForm questionId={parsedQuestion._id} authorId={mongoUser ? mongoUser._id : ""} question={parsedQuestion.content} />
     </>
   );
 }
