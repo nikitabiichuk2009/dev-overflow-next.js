@@ -1,7 +1,12 @@
 import Tag, { ITag } from "@/database/tag.model";
 import { connectToDB } from "../mongose";
-import { GetTopInteractedTagsParams, GetAllTagsParams, GetQuestionsByTagIdParams } from "./shared.types";
+import {
+  GetTopInteractedTagsParams,
+  GetAllTagsParams,
+  GetQuestionsByTagIdParams,
+} from "./shared.types";
 import mongoose, { FilterQuery } from "mongoose";
+import Question from "@/database/question.model";
 
 export async function getTagsByUserId(params: GetTopInteractedTagsParams) {
   const { userId, limit = 3 } = params;
@@ -18,7 +23,12 @@ export async function getTagsByUserId(params: GetTopInteractedTagsParams) {
 export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDB();
+    const { page = 1, pageSize = 10, searchQuery } = params;
+    const query: FilterQuery<typeof Tag> = searchQuery
+      ? { name: { $regex: new RegExp(searchQuery, "i") } }
+      : {};
     const tags = await Tag.aggregate([
+      { $match: query },
       {
         $addFields: {
           questionsCount: { $size: "$questions" },
@@ -26,6 +36,12 @@ export async function getAllTags(params: GetAllTagsParams) {
       },
       {
         $sort: { questionsCount: -1 },
+      },
+      {
+        $skip: (page - 1) * pageSize,
+      },
+      {
+        $limit: pageSize,
       },
     ]);
     return { tags };
@@ -64,25 +80,31 @@ export async function fetchQuestionsByTagId(params: GetQuestionsByTagIdParams) {
     const { tagId, searchQuery } = params;
 
     // Build the query for finding the tag
-    const tagFilter: FilterQuery<ITag> = { _id: new mongoose.Types.ObjectId(tagId) };
-
+    const tagFilter: FilterQuery<ITag> = {
+      _id: new mongoose.Types.ObjectId(tagId),
+    };
+    const query: FilterQuery<typeof Question> = {};
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
     // Find the tag and populate associated questions
     const tag = await Tag.findOne(tagFilter)
       .populate({
-        path: 'questions',
-        match: searchQuery
-          ? { title: { $regex: searchQuery, $options: 'i' } }
-          : {},
+        path: "questions",
+        match: query,
         options: { sort: { createdAt: -1 } },
         populate: [
-          { path: 'author', model: 'User' },
-          { path: 'tags', model: 'Tag' },
+          { path: "author", model: "User" },
+          { path: "tags", model: "Tag" },
         ],
       })
       .exec();
 
     if (!tag) {
-      throw new Error('Tag not found');
+      throw new Error("Tag not found");
     }
 
     // Extract the questions from the tag
@@ -91,6 +113,6 @@ export async function fetchQuestionsByTagId(params: GetQuestionsByTagIdParams) {
     return { tagTitle: tag.name, questions };
   } catch (err) {
     console.log(err);
-    throw new Error('Failed to find questions by tag_id.');
+    throw new Error("Failed to find questions by tag_id.");
   }
 }

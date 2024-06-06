@@ -5,6 +5,7 @@ import LocalSearchBar from '@/components/shared/search/LocalSearchBar';
 import { TagFilters } from '@/constants/filters';
 import { getAllTags } from '@/lib/actions/tag.actions';
 import TagCard from '@/components/cards/TagCard';
+import { SearchParamsProps } from '@/types';
 
 interface TagInterface {
   _id: string;
@@ -12,9 +13,10 @@ interface TagInterface {
   questions: string[]
 }
 
-const Page = async () => {
+const Page = async ({ searchParams }: SearchParamsProps) => {
+  const searchQuery = searchParams ? searchParams.q : ""
   try {
-    const result = await getAllTags({});
+    const result = await getAllTags({ searchQuery });
     const tagsParsed = JSON.parse(JSON.stringify(result?.tags));
 
     return (
@@ -24,6 +26,7 @@ const Page = async () => {
           <LocalSearchBar
             searchFor="Search for tags"
             iconPosition="left"
+            route='/tags'
             imgSrc="/assets/icons/search.svg"
             otherClasses="flex-1"
           />
@@ -39,7 +42,7 @@ const Page = async () => {
             ))
           ) : (
             <NoResults
-              title="There's no tags to show"
+              title="There'are no tags to show"
               description="If there are no questions, it means there are no tags. Please ask a question to generate tags."
               buttonTitle='Ask a Question'
               href='/ask-question'

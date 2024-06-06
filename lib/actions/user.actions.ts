@@ -21,8 +21,23 @@ import { FilterQuery } from "mongoose";
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDB();
-    // const { page = 1, pageSize = 20, filter, searchQuery} = params;
-    const users = await User.find({}).sort({ joinDate: -1 });
+    const {
+      searchQuery,
+      page = 1,
+      pageSize = 10,
+      // filter
+    } = params;
+    const query: FilterQuery<typeof User> = {};
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: searchQuery, $options: "i" } },
+        { username: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
+    const users = await User.find(query)
+      .sort({ joinDate: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
     return { users };
   } catch (err) {
     console.log(err);
@@ -236,26 +251,42 @@ export async function saveQuestion(params: ToggleSaveQuestionParams) {
 export async function getSavedQuestions(params: GetSavedQuestionsParams) {
   try {
     await connectToDB();
-    const { clerkId, searchQuery } = params;
-    const query: FilterQuery<typeof Question> = searchQuery
-      ? { title: { $regex: new RegExp(searchQuery, "i") } }
-      : {};
+    const {
+      clerkId,
+      searchQuery,
+      page = 1,
+      pageSize = 10,
+      // filter
+    } = params;
+    const query: FilterQuery<typeof User> = {};
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
     // Find the user by clerkId and populate the savedPosts field
-    const user = await User.findOne({ clerkId })
-      .populate({
-        path: "savedPosts",
-        match: query,
-        options: { sort: { createdAt: -1 } },
-        populate: [
-          { path: "author", model: "User" },
-          { path: "tags", model: "Tag" },
-        ],
-      })
-      .exec();
+
+    const user = await User.findOne({ clerkId });
     if (!user) {
       throw new Error("User not found!");
     }
-    const savedQuestions = user.savedPosts;
+    const savedPosts = await User.populate(user, {
+      path: "savedPosts",
+      match: query,
+      options: {
+        sort: { createdAt: -1 },
+        skip: (page - 1) * pageSize,
+        limit: pageSize,
+      },
+      populate: [
+        { path: "author", model: "User" },
+        { path: "tags", model: "Tag" },
+      ],
+    });
+
+    const savedQuestions = savedPosts.savedPosts;
+
     // Return the saved questions
     return { savedQuestions };
   } catch (err) {

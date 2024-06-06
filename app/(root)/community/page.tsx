@@ -6,10 +6,12 @@ import LocalSearchBar from '@/components/shared/search/LocalSearchBar';
 import { UserFilters } from '@/constants/filters';
 import { getAllUsers } from '@/lib/actions/user.actions';
 import { getTagsByUserId } from '@/lib/actions/tag.actions';
+import { SearchParamsProps } from '@/types';
 
-const Page = async () => {
+const Page = async ({ searchParams }: SearchParamsProps) => {
+  const searchQuery = searchParams ? searchParams.q : "";
   try {
-    const result = await getAllUsers({});
+    const result = await getAllUsers({ searchQuery });
     const usersParsed = JSON.parse(JSON.stringify(result?.users));
     // console.log(usersParsed)
     const usersWithTags = await Promise.all(
@@ -26,6 +28,7 @@ const Page = async () => {
           <LocalSearchBar
             searchFor="Search for friends"
             iconPosition="left"
+            route='/community'
             imgSrc="/assets/icons/search.svg"
             otherClasses="flex-1"
           />
@@ -48,7 +51,7 @@ const Page = async () => {
             ))
           ) : (
             <NoResults
-              title="There's no user to show"
+              title="There'are no users to show"
               description="Be the first to join our community! 🚀 Create a profile and start connecting with like-minded individuals. Your presence could be the spark that ignites new discussions and collaborations. Get involved and make a difference! 💡"
               buttonTitle='Sign up now'
               href='/sign-up'

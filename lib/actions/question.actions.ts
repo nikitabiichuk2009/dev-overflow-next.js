@@ -13,17 +13,35 @@ import {
 } from "./shared.types";
 import User from "@/database/user.model";
 import { revalidatePath } from "next/cache";
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import Answer from "@/database/asnwer.model";
 import Interaction from "@/database/interaction.model";
 
 export async function getQuestions(params: GetQuestionsParams) {
+  const {
+    searchQuery,
+    page = 1,
+    pageSize = 10,
+    // filter
+  } = params;
   try {
     await connectToDB();
-    const questions = await Question.find({})
+
+    const query: FilterQuery<typeof Question> = {};
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
+
+    const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
     return { questions };
   } catch (err) {
     console.log(err);

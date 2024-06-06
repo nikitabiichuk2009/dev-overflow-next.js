@@ -7,6 +7,7 @@ import DekstopFilters from "@/components/shared/filters/DekstopFilters";
 import QuestionCard from "@/components/cards/QuestionCard";
 import NoResults from "@/components/shared/NoResults";
 import { getQuestions } from "@/lib/actions/question.actions";
+import { SearchParamsProps } from "@/types";
 
 interface Question {
   _id: string;
@@ -19,11 +20,11 @@ interface Question {
   createdAt: Date;
 }
 
-export default async function Home() {
+export default async function Home({ searchParams }: SearchParamsProps) {
   let questionsParsed = [];
-
+  const searchQuery = searchParams ? searchParams.q : "";
   try {
-    const result = await getQuestions({});
+    const result = await getQuestions({ searchQuery });
     questionsParsed = JSON.parse(JSON.stringify(result?.questions));
     // console.log(questionsParsed);
   } catch (err) {
@@ -53,6 +54,7 @@ export default async function Home() {
         <LocalSearchBar
           searchFor="Search for questions"
           iconPosition="left"
+          route="/"
           imgSrc="/assets/icons/search.svg"
           otherClasses="flex-1"
         />
@@ -78,7 +80,7 @@ export default async function Home() {
               createdAt={question.createdAt}
             />
           }) : <NoResults
-            title="There's no question to show"
+            title="There'are no questions to show"
             buttonTitle="Ask a Question"
             href="/ask-question"
             description="Be the first to break the silence! 

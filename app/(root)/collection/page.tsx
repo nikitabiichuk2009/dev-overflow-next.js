@@ -6,6 +6,7 @@ import NoResults from "@/components/shared/NoResults";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getSavedQuestions } from "@/lib/actions/user.actions";
+import { SearchParamsProps } from "@/types";
 
 interface Question {
   _id: string;
@@ -18,14 +19,16 @@ interface Question {
   createdAt: Date;
 }
 
-export default async function Collection() {
+export default async function Collection({ searchParams }: SearchParamsProps) {
+  const searchQuery = searchParams ? searchParams.q : "";
+
   let savedQuestionsParsed = [];
   const { userId } = auth();
   if (!userId) {
     redirect("/sign-in")
   }
   try {
-    const result = await getSavedQuestions({ clerkId: userId });
+    const result = await getSavedQuestions({ clerkId: userId, searchQuery });
     savedQuestionsParsed = JSON.parse(JSON.stringify(result?.savedQuestions));
     // console.log(savedQuestionsParsed);
   } catch (err) {
@@ -50,6 +53,7 @@ export default async function Collection() {
         <LocalSearchBar
           searchFor="Search for saved questions"
           iconPosition="left"
+          route="/collection"
           imgSrc="/assets/icons/search.svg"
           otherClasses="flex-1"
         />
@@ -73,7 +77,7 @@ export default async function Collection() {
               createdAt={question.createdAt}
             />
           }) : <NoResults
-            title="There's no saved question to show"
+            title="There'are no saved questions to show"
             buttonTitle="Browse Questions"
             href="/"
             description="It looks like you haven't saved any questions yet. 

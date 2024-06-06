@@ -15,14 +15,14 @@ interface Question {
   createdAt: Date;
 }
 
-const Page = async ({ params }: any) => {
+const Page = async ({ searchParams, params }: any) => {
   let tagTitle = '';
   let questions = [];
+  const searchQuery = searchParams ? searchParams.q : ""
 
   try {
     const tagId = params.id;
-    console.log(tagId)
-    const result = await fetchQuestionsByTagId({ tagId });
+    const result = await fetchQuestionsByTagId({ tagId, searchQuery });
     const parsedResult = JSON.parse(JSON.stringify(result));
     tagTitle = parsedResult.tagTitle;
     questions = parsedResult.questions;
@@ -47,6 +47,7 @@ const Page = async ({ params }: any) => {
         <LocalSearchBar
           searchFor="Search questions by tag"
           iconPosition="left"
+          route={`/tag${params.id}`}
           imgSrc="/assets/icons/search.svg"
           otherClasses="flex-1"
         />
@@ -66,12 +67,13 @@ const Page = async ({ params }: any) => {
               createdAt={question.createdAt}
             />
           }) : <NoResults
-            title="There's no saved question to show"
-            buttonTitle="Browse Questions"
-            href="/"
-            description="It looks like you haven't saved any questions yet. 
-            😔 Save interesting questions to revisit them later, or ask your own to start a new conversation. 
-            Your curiosity could spark new insights and learning for everyone. Get involved and make a difference! 💡" />}
+            title={`No questions found for the tag "${tagTitle}"`}
+            buttonTitle="Browse All Tags"
+            href="/tags"
+            description={`It looks like there are no questions associated with the tag "${tagTitle}" yet. 
+          😔 Explore other tags or ask your own question to get the discussion started. 
+          Your curiosity could spark new insights and learning for everyone. Get involved and make a difference! 💡`}
+          />}
       </div>
     </>
   )
