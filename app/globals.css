@@ -75,7 +75,7 @@ body {
   }
 
   .btn {
-    @apply bg-light-800 duration-300 ease-in-out transition-colors hover:bg-[#EEEEEE] dark:hover:bg-dark-200 dark:bg-dark-300 !important;
+    @apply bg-light-800  duration-300 ease-in-out transition-colors hover:bg-[#EEEEEE] dark:hover:bg-dark-200 dark:bg-dark-300 !important;
   }
 
   .btn-secondary {

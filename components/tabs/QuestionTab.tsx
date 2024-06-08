@@ -3,6 +3,7 @@ import QuestionCard from '../cards/QuestionCard';
 import { getUserQuestions } from '@/lib/actions/user.actions';
 import NoResults from '../shared/NoResults';
 import { SearchParamsProps } from '@/types';
+import Pagination from '../Pagination';
 
 
 interface Question {
@@ -20,13 +21,16 @@ interface Props extends SearchParamsProps {
   userId: string
 }
 
-const QuestionTab = async ({ searchProps, userId }: Props) => {
+const QuestionTab = async ({ searchParams, userId }: Props) => {
+  const page = searchParams.page ? +searchParams.page : 1;
+
   let questions;
+  let isNext;
   try {
-    const questionsInitial = await getUserQuestions({ userId });
+    const questionsInitial = await getUserQuestions({ userId, page });
 
-    questions = JSON.parse(JSON.stringify(questionsInitial));
-
+    questions = JSON.parse(JSON.stringify(questionsInitial.questions));
+    isNext = JSON.parse(JSON.stringify(questionsInitial.isNext));
   } catch (error) {
     console.log(error);
     return (
@@ -42,23 +46,32 @@ const QuestionTab = async ({ searchProps, userId }: Props) => {
     );
   }
   return (
-    <div>{questions.length === 0 ?
+    <div>
+      {questions.length === 0 ?
       <p className='paragraph-semibold text-dark200_light900'>The user has not posted any questions yet.</p>
 
-      : questions.map((question: Question) => {
-        return <QuestionCard
-          key={question._id}
-          id={question._id}
-          title={question.title}
-          tags={question.tags}
-          author={question.author}
-          upvotes={question.upvotes}
-          answers={question.answers}
-          views={question.views}
-          createdAt={question.createdAt}
-        />
-      })
+      : <div className='mt-7 flex w-full flex-col gap-6'>
+        {questions.map((question: Question) => {
+          return <QuestionCard
+            key={question._id}
+            id={question._id}
+            title={question.title}
+            tags={question.tags}
+            author={question.author}
+            upvotes={question.upvotes}
+            answers={question.answers}
+            views={question.views}
+            createdAt={question.createdAt}
+          />
+        })}
+      </div>
     }
+    <div className="mt-10">
+        <Pagination
+          isNext={isNext}
+          pageNumber={page}
+        />
+      </div>
     </div>
   )
 }

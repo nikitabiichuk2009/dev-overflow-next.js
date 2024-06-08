@@ -14,12 +14,15 @@ import mongoose, { Error } from "mongoose";
 import Interaction from "@/database/interaction.model";
 
 export async function getAllAnswers(params: GetAnswersParams) {
-  const { questionId, sortBy = "recent", page = 1, pageSize = 10 } = params;
+  const { questionId, sortBy = "recent", page = 1, pageSize = 5 } = params;
   try {
     await connectToDB();
+    const skip = (page - 1) * pageSize;
 
     // Ensure questionId is an ObjectId
     const questionObjectId = new mongoose.Types.ObjectId(questionId);
+
+    const totalAnswers = await Answer.countDocuments({ question: questionObjectId })
 
     // Determine sorting option based on sortBy parameter
     let sortOption = {}; // Default sort by most recent
@@ -49,7 +52,7 @@ export async function getAllAnswers(params: GetAnswersParams) {
         },
       },
       { $sort: sortOption },
-      { $skip: (page - 1) * pageSize },
+      { $skip: skip },
       { $limit: pageSize },
       {
         $lookup: {
@@ -63,8 +66,9 @@ export async function getAllAnswers(params: GetAnswersParams) {
     ];
 
     const answers = await Answer.aggregate(aggregationPipeline);
+    const hasNextPage = totalAnswers > skip + answers.length;
 
-    return { answers };
+    return { answers, isNext: hasNextPage };
   } catch (err) {
     console.log(err);
     throw new Error("Failed to fetch answers");

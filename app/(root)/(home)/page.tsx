@@ -8,6 +8,7 @@ import QuestionCard from "@/components/cards/QuestionCard";
 import NoResults from "@/components/shared/NoResults";
 import { getQuestions } from "@/lib/actions/question.actions";
 import { SearchParamsProps } from "@/types";
+import Pagination from "@/components/Pagination";
 
 interface Question {
   _id: string;
@@ -22,11 +23,14 @@ interface Question {
 
 export default async function Home({ searchParams }: SearchParamsProps) {
   let questionsParsed = [];
+  let isNext;
   const searchQuery = searchParams ? searchParams.q : "";
   const filter = searchParams ? searchParams.filter : "";
-  try {
-    const result = await getQuestions({ searchQuery, filter });
+  const page = searchParams.page ? parseInt(searchParams.page) : 1; 
+   try {
+    const result = await getQuestions({ searchQuery, filter, page });
     questionsParsed = JSON.parse(JSON.stringify(result?.questions));
+    isNext=JSON.parse(JSON.stringify(result?.isNext));
     // console.log(questionsParsed);
   } catch (err) {
     console.error('Failed to fetch questions', err);
@@ -86,6 +90,12 @@ export default async function Home({ searchParams }: SearchParamsProps) {
             href="/ask-question"
             description="Be the first to break the silence! 
             🚀 Ask a Question and kickstart the discussion. Our query could be the next big thing others learn from. Get involved! 💡" />}
+      </div>
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={isNext}
+        />
       </div>
     </>
   );

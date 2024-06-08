@@ -6,6 +6,7 @@ import { TagFilters } from '@/constants/filters';
 import { getAllTags } from '@/lib/actions/tag.actions';
 import TagCard from '@/components/cards/TagCard';
 import { SearchParamsProps } from '@/types';
+import Pagination from '@/components/Pagination';
 
 interface TagInterface {
   _id: string;
@@ -16,10 +17,11 @@ interface TagInterface {
 const Page = async ({ searchParams }: SearchParamsProps) => {
   const searchQuery = searchParams ? searchParams.q : "";
   const filter = searchParams ? searchParams.filter : "";
+  const page = searchParams?.page ? +searchParams.page : 1;
   try {
-    const result = await getAllTags({ searchQuery, filter });
+    const result = await getAllTags({ searchQuery, filter, page });
     const tagsParsed = JSON.parse(JSON.stringify(result?.tags));
-
+    const isNext = JSON.parse(JSON.stringify(result?.isNext));
     return (
       <div>
         <h1 className='h1-bold text-dark100_light900'>All tags</h1>
@@ -49,6 +51,12 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
               href='/ask-question'
             />
           )}
+        </div>
+        <div className='mt-10'>
+          <Pagination
+            pageNumber={page}
+            isNext={isNext}
+          />
         </div>
       </div>
     );

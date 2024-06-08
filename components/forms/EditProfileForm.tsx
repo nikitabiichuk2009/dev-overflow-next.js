@@ -129,7 +129,7 @@ const EditProfileForm = ({ initialValues, userClerkId }: { initialValues?: any, 
                      dark:border-dark-400" {...field} />
                 </FormControl>
                 <FormDescription className="mt-2.5 font-spaceGrotesk text-[14px] font-normal leading-[19.6px] text-light-500">
-                  Provide a brief bio about yourself (10-100 characters).
+                  Provide a brief bio about yourself (10-200 characters).
                 </FormDescription>
                 <FormMessage className="text-red-500" />
               </FormItem>

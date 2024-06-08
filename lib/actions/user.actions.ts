@@ -16,12 +16,13 @@ import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
 import Answer from "@/database/asnwer.model";
 import Tag from "@/database/tag.model";
-import { FilterQuery, SortOrder } from "mongoose";
+import mongoose, { FilterQuery, SortOrder } from "mongoose";
 
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDB();
-    const { searchQuery, page = 1, pageSize = 10, filter } = params;
+    const { searchQuery, page = 1, pageSize = 20, filter } = params;
+    const skip = (page - 1) * pageSize;
 
     const query: FilterQuery<typeof User> = {};
     if (searchQuery) {
@@ -42,9 +43,13 @@ export async function getAllUsers(params: GetAllUsersParams) {
 
     const users = await User.find(query)
       .sort(sortOption)
-      .skip((page - 1) * pageSize)
+      .skip(skip)
       .limit(pageSize);
-    return { users };
+
+    const totalUsersCount = await User.countDocuments(query);
+    const hasNextPage = totalUsersCount > skip + users.length;
+
+    return { users, isNext: hasNextPage };
   } catch (err) {
     console.log(err);
     throw new Error("Failed to fetch users");
@@ -64,7 +69,10 @@ export async function getUserQuestions(params: GetUserStatsParams) {
       .limit(pageSize)
       .exec();
 
-    return questions;
+    const totalUserQuestions = await Question.countDocuments({ author: userId });
+    const hasNextPage = totalUserQuestions > skip + questions.length;
+
+    return { questions, isNext: hasNextPage };
   } catch (error) {
     console.error("Error fetching user questions:", error);
     throw new Error("Error fetching user questions");
@@ -84,25 +92,51 @@ export async function getUserAnswers(params: GetUserStatsParams) {
         },
       })
       .populate("author")
-      .sort({ createdAt: -1, upvotes: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
       .exec();
 
-    return answers;
+    const totalUserAnswers = await Answer.countDocuments({ author: userId });
+    const hasNextPage = totalUserAnswers > skip + answers.length;
+
+    return { answers, isNext: hasNextPage };
   } catch (error) {
     console.error("Error fetching user answers:", error);
     throw new Error("Error fetching user answers");
   }
 }
 
+
 export async function getUserTags(params: GetUserStatsParams) {
   try {
     await connectToDB();
-    const { userId } = params;
-    let tags = await Tag.find({ followers: userId }).exec();
-    tags = tags.sort((a, b) => b.questions.length - a.questions.length);
-    return tags;
+    const { userId, page = 1, pageSize = 10 } = params;
+    const skip = (page - 1) * pageSize;
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const tags = await Tag.aggregate([
+      { $match: { followers: userObjectId } },
+      {
+        $addFields: {
+          questionsCount: { $size: "$questions" },
+        },
+      },
+      {
+        $sort: { questionsCount: -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: pageSize,
+      },
+    ]);
+
+    const totalUserTags = await Tag.countDocuments({ followers: userObjectId });
+    const hasNextPage = totalUserTags > skip + tags.length;
+
+    return { tags, isNext: hasNextPage };
   } catch (error) {
     console.error("Error fetching user tags:", error);
     throw new Error("Error fetching user tags");
@@ -258,6 +292,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
   try {
     await connectToDB();
     const { clerkId, searchQuery, page = 1, pageSize = 10, filter } = params;
+    const skip = (page - 1) * pageSize;
     const query: FilterQuery<typeof User> = {};
     if (searchQuery) {
       query.$or = [
@@ -284,13 +319,19 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     if (!user) {
       throw new Error("User not found!");
     }
-
+    const totalUserSavedQuestions = await Question.countDocuments({
+      _id: { $in: user.savedPosts },
+      ...query,
+    });
+    
+    // Log the count to verify
+    console.log('Total saved questions count:', totalUserSavedQuestions);
     const savedPosts = await User.populate(user, {
       path: "savedPosts",
       match: query,
       options: {
         sort: sortOption,
-        skip: (page - 1) * pageSize,
+        skip,
         limit: pageSize,
       },
       populate: [
@@ -300,8 +341,8 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     });
 
     const savedQuestions = savedPosts.savedPosts;
-    // Return the saved questions
-    return { savedQuestions };
+    const hasNextPage = totalUserSavedQuestions > skip + savedQuestions.length;    // Return the saved questions
+    return { savedQuestions, isNext: hasNextPage };
   } catch (err) {
     console.log(err);
     throw new Error("Error fetching saved questions.");

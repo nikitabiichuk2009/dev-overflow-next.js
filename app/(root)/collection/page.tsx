@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getSavedQuestions } from "@/lib/actions/user.actions";
 import { SearchParamsProps } from "@/types";
 import { QuestionFilters } from "@/constants/filters";
+import Pagination from "@/components/Pagination";
 
 interface Question {
   _id: string;
@@ -22,14 +23,18 @@ interface Question {
 export default async function Collection({ searchParams }: SearchParamsProps) {
   const searchQuery = searchParams ? searchParams.q : "";
   const filter = searchParams ? searchParams.filter : "";
+  const page = searchParams?.page ? +searchParams.page : 1;
+
   let savedQuestionsParsed = [];
+  let isNext;
   const { userId } = auth();
   if (!userId) {
     redirect("/sign-in")
   }
   try {
-    const result = await getSavedQuestions({ clerkId: userId, searchQuery, filter });
+    const result = await getSavedQuestions({ clerkId: userId, searchQuery, filter, page });
     savedQuestionsParsed = JSON.parse(JSON.stringify(result?.savedQuestions));
+    isNext = JSON.parse(JSON.stringify(result?.isNext));
     // console.log(savedQuestionsParsed);
   } catch (err) {
     console.error('Failed to fetch questions', err);
@@ -83,6 +88,12 @@ export default async function Collection({ searchParams }: SearchParamsProps) {
             description="It looks like you haven't saved any questions yet. 
             😔 Save interesting questions to revisit them later, or ask your own to start a new conversation. 
             Your curiosity could spark new insights and learning for everyone. Get involved and make a difference! 💡" />}
+        <div className='mt-10'>
+          <Pagination
+            pageNumber={page}
+            isNext={isNext}
+          />
+        </div>
       </div>
     </>
   );

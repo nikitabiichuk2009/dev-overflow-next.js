@@ -3,6 +3,8 @@ import Filter from './filters/Filter';
 import { AnswerFilters } from '@/constants/filters';
 import { getAllAnswers } from '@/lib/actions/answer.actions';
 import AnswerCard from '../cards/AnswerCard';
+import Pagination from '../Pagination';
+import { SearchParamsProps } from '@/types';
 
 interface IAuthor {
   _id: string;
@@ -27,16 +29,20 @@ interface IAnswer {
   createdAt: Date;
 }
 
-
-const AllAnswers = async ({ filter, questionId, userId, totalAnswers }: {
+interface Props extends SearchParamsProps {
   questionId: string;
   userId: string;
   totalAnswers: number;
   page?: number;
   filter?: string;
-}) => {
-  const result = await getAllAnswers({ questionId, sortBy: filter });
+}
+
+
+const AllAnswers = async ({ searchParams, filter, questionId, userId, totalAnswers }: Props) => {
+  const page = searchParams?.page ? +searchParams.page : 1;
+  const result = await getAllAnswers({ questionId, sortBy: filter, page });
   const answers: IAnswer[] = JSON.parse(JSON.stringify(result.answers));
+  const isNext = JSON.parse(JSON.stringify(result.isNext));
   return (
     <div className='mt-11'>
       <div className='flex items-center justify-between'>
@@ -49,6 +55,12 @@ const AllAnswers = async ({ filter, questionId, userId, totalAnswers }: {
         {answers.map((answer: IAnswer) => {
           return <AnswerCard key={answer._id} answerId={answer._id} upvotes={answer.upvotes} downvotes={answer.downvotes} questionId={answer.question} userId={userId} content={answer.content} createdAt={answer.createdAt} author={answer.author} />
         })}
+      </div>
+      <div className='mt-10'>
+        <Pagination
+          pageNumber={page}
+          isNext={isNext}
+        />
       </div>
     </div>
   )

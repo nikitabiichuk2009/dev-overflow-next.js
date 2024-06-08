@@ -88,6 +88,7 @@ const Page = async ({ params, searchParams }: any) => {
         ))}
       </div>
       <AllAnswers
+        searchParams={searchParams}
         userId={mongoUser ? mongoUser._id : ""}
         questionId={parsedQuestion._id}
         filter={searchParams ? searchParams.filter : ""}

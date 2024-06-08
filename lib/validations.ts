@@ -32,8 +32,8 @@ export const EditProfileSchema = z.object({
   bio: z
     .string()
     .optional()
-    .refine((val) => !val || (val.length >= 10 && val.length <= 100), {
-      message: "Bio must be between 10 and 100 characters long",
+    .refine((val) => !val || (val.length >= 10 && val.length <= 200), {
+      message: "Bio must be between 10 and 200 characters long",
     }),
   portfolio: z
     .string()

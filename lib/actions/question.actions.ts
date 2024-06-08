@@ -46,7 +46,9 @@ export async function getQuestions(params: GetQuestionsParams) {
       .skip((page - 1) * pageSize)
       .limit(pageSize);
 
-    return { questions };
+    const totalQuestions = await Question.countDocuments(query);
+    const hasNextPage = totalQuestions > ((page - 1) * pageSize) + questions.length;
+    return { questions, isNext: hasNextPage };
   } catch (err) {
     console.log(err);
     throw new Error("Failed to fetch questions");
@@ -154,22 +156,42 @@ export async function editQuestion(params: EditQuestionParams) {
           });
         }
 
+        // Add author to followers list if not already a follower
+        if (!existingTag.followers.includes(question.author)) {
+          await Tag.findByIdAndUpdate(existingTag._id, {
+            $addToSet: { followers: question.author },
+          });
+        }
+
         tagDocuments.push(existingTag._id);
       } else {
-        // Create new tag if it doesn't exist and add question to it
+        // Create new tag if it doesn't exist and add question and author to it
         const newTag = await Tag.create({
           name: tag,
           questions: [question._id],
+          followers: [question.author] // Add the author to the followers list
         });
         tagDocuments.push(newTag._id);
       }
     }
 
     // Remove the question from tags that are not in the new tags list
-    await Tag.updateMany(
-      { questions: question._id, _id: { $nin: tagDocuments } },
-      { $pull: { questions: question._id } }
-    );
+    const tagsToRemoveFrom = await Tag.find({
+      questions: question._id,
+      _id: { $nin: tagDocuments },
+    });
+
+    for (const tagToRemoveFrom of tagsToRemoveFrom) {
+      await Tag.findByIdAndUpdate(tagToRemoveFrom._id, {
+        $pull: { questions: question._id },
+      });
+
+      // Check if the tag now has 0 questions and delete it if so
+      const updatedTag = await Tag.findById(tagToRemoveFrom._id);
+      if (updatedTag.questions.length === 0) {
+        await Tag.findByIdAndDelete(tagToRemoveFrom._id);
+      }
+    }
 
     // Update the question's tags
     await Question.findByIdAndUpdate(question._id, {

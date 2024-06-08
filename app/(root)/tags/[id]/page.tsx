@@ -1,3 +1,4 @@
+import Pagination from '@/components/Pagination';
 import QuestionCard from '@/components/cards/QuestionCard';
 import NoResults from '@/components/shared/NoResults';
 import LocalSearchBar from '@/components/shared/search/LocalSearchBar';
@@ -18,14 +19,17 @@ interface Question {
 const Page = async ({ searchParams, params }: any) => {
   let tagTitle = '';
   let questions = [];
-  const searchQuery = searchParams ? searchParams.q : ""
+  let isNext;
+  const searchQuery = searchParams ? searchParams.q : "";
+  const page = searchParams?.page ? +searchParams.page : 1;
 
   try {
     const tagId = params.id;
-    const result = await fetchQuestionsByTagId({ tagId, searchQuery });
+    const result = await fetchQuestionsByTagId({ tagId, searchQuery, page });
     const parsedResult = JSON.parse(JSON.stringify(result));
     tagTitle = parsedResult.tagTitle;
     questions = parsedResult.questions;
+    isNext = parsedResult.isNext;
   } catch (err) {
     console.error('Failed to fetch questions by tag ID', err);
     return (
@@ -74,6 +78,12 @@ const Page = async ({ searchParams, params }: any) => {
           😔 Explore other tags or ask your own question to get the discussion started. 
           Your curiosity could spark new insights and learning for everyone. Get involved and make a difference! 💡`}
           />}
+        <div className='mt-10'>
+          <Pagination
+            pageNumber={page}
+            isNext={isNext}
+          />
+        </div>
       </div>
     </>
   )

@@ -7,13 +7,17 @@ import { UserFilters } from '@/constants/filters';
 import { getAllUsers } from '@/lib/actions/user.actions';
 import { getTagsByUserId } from '@/lib/actions/tag.actions';
 import { SearchParamsProps } from '@/types';
+import Pagination from '@/components/Pagination';
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
   const searchQuery = searchParams ? searchParams.q : "";
   const filter = searchParams ? searchParams.filter : "";
+  const page = searchParams?.page ? +searchParams.page : 1;
+
   try {
-    const result = await getAllUsers({ searchQuery, filter });
+    const result = await getAllUsers({ searchQuery, filter, page });
     const usersParsed = JSON.parse(JSON.stringify(result?.users));
+    const isNext = JSON.parse(JSON.stringify(result?.isNext));
     // console.log(usersParsed)
     const usersWithTags = await Promise.all(
       usersParsed.map(async (user: any) => {
@@ -58,6 +62,12 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
               href='/sign-up'
             />
           )}
+        </div>
+        <div className='mt-10'>
+          <Pagination
+            pageNumber={searchParams?.page ? +searchParams.page : 1}
+            isNext={isNext}
+          />
         </div>
       </div>
     );

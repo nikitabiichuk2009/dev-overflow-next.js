@@ -23,7 +23,7 @@ export async function getTagsByUserId(params: GetTopInteractedTagsParams) {
 export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDB();
-    const { page = 1, pageSize = 100, searchQuery, filter } = params;
+    const { page = 1, pageSize = 10, searchQuery, filter } = params;
     const query: FilterQuery<typeof Tag> = searchQuery
       ? { name: { $regex: new RegExp(searchQuery, "i") } }
       : {};
@@ -64,7 +64,9 @@ export async function getAllTags(params: GetAllTagsParams) {
         $limit: pageSize,
       },
     ]);
-    return { tags };
+    const totalTags = await Tag.countDocuments(query);
+    const hasNextPage = totalTags > ((page - 1) * pageSize) + tags.length;
+    return { tags, isNext: hasNextPage };
   } catch (err) {
     console.log(err);
     throw new Error("Failed to fetch tags");
@@ -97,12 +99,14 @@ export async function getPopularTags() {
 export async function fetchQuestionsByTagId(params: GetQuestionsByTagIdParams) {
   try {
     await connectToDB();
-    const { tagId, searchQuery } = params;
+    const { tagId, searchQuery, page = 1, pageSize = 10 } = params;
+    const skip = (page - 1) * pageSize;
 
     // Build the query for finding the tag
     const tagFilter: FilterQuery<ITag> = {
       _id: new mongoose.Types.ObjectId(tagId),
     };
+
     const query: FilterQuery<typeof Question> = {};
     if (searchQuery) {
       query.$or = [
@@ -110,12 +114,13 @@ export async function fetchQuestionsByTagId(params: GetQuestionsByTagIdParams) {
         { content: { $regex: searchQuery, $options: "i" } },
       ];
     }
-    // Find the tag and populate associated questions
+
+    // Find the tag and populate associated questions with pagination
     const tag = await Tag.findOne(tagFilter)
       .populate({
         path: "questions",
         match: query,
-        options: { sort: { createdAt: -1 } },
+        options: { sort: { createdAt: -1 }, skip, limit: pageSize },
         populate: [
           { path: "author", model: "User" },
           { path: "tags", model: "Tag" },
@@ -130,7 +135,15 @@ export async function fetchQuestionsByTagId(params: GetQuestionsByTagIdParams) {
     // Extract the questions from the tag
     const questions = tag.questions;
 
-    return { tagTitle: tag.name, questions };
+    // Check if there are more questions for next page
+    const totalQuestionsCount = await Question.countDocuments({ tags: tag._id, ...query });
+    const hasNextPage = totalQuestionsCount > skip + questions.length;
+
+    return {
+      tagTitle: tag.name,
+      questions,
+      isNext: hasNextPage,
+    };
   } catch (err) {
     console.log(err);
     throw new Error("Failed to find questions by tag_id.");

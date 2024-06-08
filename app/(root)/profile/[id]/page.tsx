@@ -61,7 +61,7 @@ const Profile = async ({ params, searchParams }: URLProps) => {
               {userParsed.location && <ProfileLink imgUrl="/assets/icons/location.svg" alt="user-info-location" title={userParsed.location} />}
               <ProfileLink imgUrl="/assets/icons/calendar.svg" alt="user info joined date" title={`Joined ${formattedJoinedDate}`} />
             </div>
-            {userParsed.bio && <p className='paragraph-semibold text-dark400_light800'>{userParsed.bio}</p>}
+            {userParsed.bio && <p className='paragraph-semibold text-dark400_light800 mt-3'>{userParsed.bio}</p>}
           </div>
         </div>
         <div className='flex justify-end max-sm:mb-5 max-sm:w-full sm:mt-3'>
