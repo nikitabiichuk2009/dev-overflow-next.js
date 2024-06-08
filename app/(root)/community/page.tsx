@@ -10,8 +10,9 @@ import { SearchParamsProps } from '@/types';
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
   const searchQuery = searchParams ? searchParams.q : "";
+  const filter = searchParams ? searchParams.filter : "";
   try {
-    const result = await getAllUsers({ searchQuery });
+    const result = await getAllUsers({ searchQuery, filter });
     const usersParsed = JSON.parse(JSON.stringify(result?.users));
     // console.log(usersParsed)
     const usersWithTags = await Promise.all(
@@ -51,7 +52,7 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
             ))
           ) : (
             <NoResults
-              title="There'are no users to show"
+              title="There are no users to show"
               description="Be the first to join our community! 🚀 Create a profile and start connecting with like-minded individuals. Your presence could be the spark that ignites new discussions and collaborations. Get involved and make a difference! 💡"
               buttonTitle='Sign up now'
               href='/sign-up'

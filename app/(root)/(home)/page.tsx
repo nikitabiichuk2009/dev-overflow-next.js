@@ -23,8 +23,9 @@ interface Question {
 export default async function Home({ searchParams }: SearchParamsProps) {
   let questionsParsed = [];
   const searchQuery = searchParams ? searchParams.q : "";
+  const filter = searchParams ? searchParams.filter : "";
   try {
-    const result = await getQuestions({ searchQuery });
+    const result = await getQuestions({ searchQuery, filter });
     questionsParsed = JSON.parse(JSON.stringify(result?.questions));
     // console.log(questionsParsed);
   } catch (err) {
@@ -80,7 +81,7 @@ export default async function Home({ searchParams }: SearchParamsProps) {
               createdAt={question.createdAt}
             />
           }) : <NoResults
-            title="There'are no questions to show"
+            title={`There are no ${filter || ""} questions to show`}
             buttonTitle="Ask a Question"
             href="/ask-question"
             description="Be the first to break the silence! 

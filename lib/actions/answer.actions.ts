@@ -14,12 +14,56 @@ import mongoose, { Error } from "mongoose";
 import Interaction from "@/database/interaction.model";
 
 export async function getAllAnswers(params: GetAnswersParams) {
-  const { questionId } = params;
+  const { questionId, sortBy = "recent", page = 1, pageSize = 10 } = params;
   try {
     await connectToDB();
-    const answers = await Answer.find({ question: questionId })
-      .populate({ path: "author", model: User })
-      .sort({ createdAt: 1 });
+
+    // Ensure questionId is an ObjectId
+    const questionObjectId = new mongoose.Types.ObjectId(questionId);
+
+    // Determine sorting option based on sortBy parameter
+    let sortOption = {}; // Default sort by most recent
+    switch (sortBy) {
+      case "lowestUpvotes":
+        sortOption = { upvotesCount: 1 };
+        break;
+      case "highestUpvotes":
+        sortOption = { upvotesCount: -1 };
+        break;
+      case "recent":
+        sortOption = { createdAt: -1 };
+        break;
+      case "old":
+        sortOption = { createdAt: 1 };
+        break;
+
+      default:
+        break;
+    }
+
+    const aggregationPipeline = [
+      { $match: { question: questionObjectId } },
+      {
+        $addFields: {
+          upvotesCount: { $size: "$upvotes" },
+        },
+      },
+      { $sort: sortOption },
+      { $skip: (page - 1) * pageSize },
+      { $limit: pageSize },
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      { $unwind: "$author" },
+    ];
+
+    const answers = await Answer.aggregate(aggregationPipeline);
+
     return { answers };
   } catch (err) {
     console.log(err);

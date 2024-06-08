@@ -14,9 +14,10 @@ interface TagInterface {
 }
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
-  const searchQuery = searchParams ? searchParams.q : ""
+  const searchQuery = searchParams ? searchParams.q : "";
+  const filter = searchParams ? searchParams.filter : "";
   try {
-    const result = await getAllTags({ searchQuery });
+    const result = await getAllTags({ searchQuery, filter });
     const tagsParsed = JSON.parse(JSON.stringify(result?.tags));
 
     return (
@@ -42,7 +43,7 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
             ))
           ) : (
             <NoResults
-              title="There'are no tags to show"
+              title={`There are no ${filter || ""} tags to show`}
               description="If there are no questions, it means there are no tags. Please ask a question to generate tags."
               buttonTitle='Ask a Question'
               href='/ask-question'

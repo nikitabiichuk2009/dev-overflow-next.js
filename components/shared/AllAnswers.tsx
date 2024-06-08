@@ -28,21 +28,22 @@ interface IAnswer {
 }
 
 
-const AllAnswers = async ({ questionId, userId, totalAnswers }: {
+const AllAnswers = async ({ filter, questionId, userId, totalAnswers }: {
   questionId: string;
   userId: string;
   totalAnswers: number;
   page?: number;
-  flter?: string
+  filter?: string;
 }) => {
-  const result = await getAllAnswers({ questionId });
+  const result = await getAllAnswers({ questionId, sortBy: filter });
   const answers: IAnswer[] = JSON.parse(JSON.stringify(result.answers));
   return (
     <div className='mt-11'>
       <div className='flex items-center justify-between'>
         <h3 className='primary-text-gradient'>{totalAnswers} {totalAnswers === 1 ? "Answer" : "Answers"}</h3>
-        <Filter filters={AnswerFilters}
-        />
+        {totalAnswers > 0 && <Filter filters={AnswerFilters}
+        />}
+
       </div>
       <div>
         {answers.map((answer: IAnswer) => {

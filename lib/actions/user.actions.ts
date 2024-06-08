@@ -16,17 +16,13 @@ import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
 import Answer from "@/database/asnwer.model";
 import Tag from "@/database/tag.model";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, SortOrder } from "mongoose";
 
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDB();
-    const {
-      searchQuery,
-      page = 1,
-      pageSize = 10,
-      // filter
-    } = params;
+    const { searchQuery, page = 1, pageSize = 10, filter } = params;
+
     const query: FilterQuery<typeof User> = {};
     if (searchQuery) {
       query.$or = [
@@ -34,8 +30,18 @@ export async function getAllUsers(params: GetAllUsersParams) {
         { username: { $regex: searchQuery, $options: "i" } },
       ];
     }
+
+    let sortOption: { [key: string]: SortOrder } = { joinDate: -1 }; // Default sort by newest
+    if (filter === "old_users") {
+      sortOption = { joinDate: 1 };
+    } else if (filter === "new_users") {
+      sortOption = { joinDate: -1 };
+    } else if (filter === "top_contributors") {
+      sortOption = { reputation: -1 };
+    }
+
     const users = await User.find(query)
-      .sort({ joinDate: -1 })
+      .sort(sortOption)
       .skip((page - 1) * pageSize)
       .limit(pageSize);
     return { users };
@@ -251,13 +257,7 @@ export async function saveQuestion(params: ToggleSaveQuestionParams) {
 export async function getSavedQuestions(params: GetSavedQuestionsParams) {
   try {
     await connectToDB();
-    const {
-      clerkId,
-      searchQuery,
-      page = 1,
-      pageSize = 10,
-      // filter
-    } = params;
+    const { clerkId, searchQuery, page = 1, pageSize = 10, filter } = params;
     const query: FilterQuery<typeof User> = {};
     if (searchQuery) {
       query.$or = [
@@ -265,17 +265,31 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
         { content: { $regex: searchQuery, $options: "i" } },
       ];
     }
-    // Find the user by clerkId and populate the savedPosts field
 
+    let sortOption: { [key: string]: SortOrder } = {};
+    if (filter === "most_viewed") {
+      sortOption = { views: -1 };
+    } else if (filter === "most_answered") {
+      sortOption = { answers: -1 };
+    } else if (filter === "most_voted") {
+      sortOption = { upvotes: -1 };
+    } else if (filter === "most_recent") {
+      sortOption = { createdAt: -1 };
+    } else if (filter === "oldest") {
+      sortOption = { createdAt: 1 };
+    }
+
+    // Find the user by clerkId and populate the savedPosts field
     const user = await User.findOne({ clerkId });
     if (!user) {
       throw new Error("User not found!");
     }
+
     const savedPosts = await User.populate(user, {
       path: "savedPosts",
       match: query,
       options: {
-        sort: { createdAt: -1 },
+        sort: sortOption,
         skip: (page - 1) * pageSize,
         limit: pageSize,
       },
@@ -286,7 +300,6 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     });
 
     const savedQuestions = savedPosts.savedPosts;
-
     // Return the saved questions
     return { savedQuestions };
   } catch (err) {

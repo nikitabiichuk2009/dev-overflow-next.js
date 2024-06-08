@@ -13,17 +13,12 @@ import {
 } from "./shared.types";
 import User from "@/database/user.model";
 import { revalidatePath } from "next/cache";
-import mongoose, { FilterQuery } from "mongoose";
+import mongoose, { FilterQuery, SortOrder } from "mongoose";
 import Answer from "@/database/asnwer.model";
 import Interaction from "@/database/interaction.model";
 
 export async function getQuestions(params: GetQuestionsParams) {
-  const {
-    searchQuery,
-    page = 1,
-    pageSize = 10,
-    // filter
-  } = params;
+  const { searchQuery, page = 1, pageSize = 10, filter } = params;
   try {
     await connectToDB();
 
@@ -35,10 +30,19 @@ export async function getQuestions(params: GetQuestionsParams) {
       ];
     }
 
+    let sortOption: { [key: string]: SortOrder } = { createdAt: 1 }; // Default sort by newest
+    if (filter === "frequent") {
+      sortOption = { views: -1 }; // Sort by most viewed
+    } else if (filter === "unanswered") {
+      query.answers = { $size: 0 }; // Filter for unanswered questions
+    } else if (filter === "newest") {
+      sortOption = { createdAt: -1 }; // Sort by most recent
+    }
+
     const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
-      .sort({ createdAt: -1 })
+      .sort(sortOption)
       .skip((page - 1) * pageSize)
       .limit(pageSize);
 
@@ -48,7 +52,6 @@ export async function getQuestions(params: GetQuestionsParams) {
     throw new Error("Failed to fetch questions");
   }
 }
-
 export async function getPopularQuestions() {
   try {
     await connectToDB();

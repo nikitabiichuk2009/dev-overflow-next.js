@@ -20,7 +20,7 @@ interface TagInterface {
   questions: string[];
 }
 
-const Page = async ({ params }: any) => {
+const Page = async ({ params, searchParams }: any) => {
   const { userId } = auth();
   let mongoUser = null;
 
@@ -90,6 +90,7 @@ const Page = async ({ params }: any) => {
       <AllAnswers
         userId={mongoUser ? mongoUser._id : ""}
         questionId={parsedQuestion._id}
+        filter={searchParams ? searchParams.filter : ""}
         totalAnswers={parsedQuestion.answers.length}
       />
       <AnswerForm questionId={parsedQuestion._id} authorId={mongoUser ? mongoUser._id : ""} question={parsedQuestion.content} />

@@ -25,16 +25,14 @@ const LocalSearchBar = ({ route, searchFor, iconPosition, imgSrc, otherClasses }
         })
         router.push(newUrl, { scroll: false })
       } else {
-        if (pathName === route) {
-          const newUrl = removeKeysFromQuery({
-            params: searchParams.toString(),
-            keys: ["q"]
-          })
-          router.push(newUrl, { scroll: false })
-        }
+        const newUrl = removeKeysFromQuery({
+          params: searchParams.toString(),
+          keys: ["q"]
+        })
+        router.push(newUrl, { scroll: false })
       }
       return () => clearTimeout(delayDebounceFn)
-    }, 700)
+    }, 1000)
   }, [search, pathName, searchParams, query, router, route])
 
   const handleImageClick = () => {

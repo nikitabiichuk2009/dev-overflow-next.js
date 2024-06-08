@@ -23,10 +23,30 @@ export async function getTagsByUserId(params: GetTopInteractedTagsParams) {
 export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDB();
-    const { page = 1, pageSize = 10, searchQuery } = params;
+    const { page = 1, pageSize = 100, searchQuery, filter } = params;
     const query: FilterQuery<typeof Tag> = searchQuery
       ? { name: { $regex: new RegExp(searchQuery, "i") } }
       : {};
+
+    let sortOption = {};
+    switch (filter) {
+      case "popular":
+        sortOption = { questionsCount: -1 };
+        break;
+      case "recent":
+        sortOption = { createdAt: -1 };
+        break;
+      case "name":
+        sortOption = { name: 1 };
+        break;
+      case "old":
+        sortOption = { createdAt: 1 };
+        break;
+      default:
+        sortOption = { questionsCount: -1 }; // Default to popular
+        break;
+    }
+
     const tags = await Tag.aggregate([
       { $match: query },
       {
@@ -35,7 +55,7 @@ export async function getAllTags(params: GetAllTagsParams) {
         },
       },
       {
-        $sort: { questionsCount: -1 },
+        $sort: sortOption,
       },
       {
         $skip: (page - 1) * pageSize,
