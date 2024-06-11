@@ -7,6 +7,15 @@ import { getAllTags } from '@/lib/actions/tag.actions';
 import TagCard from '@/components/cards/TagCard';
 import { SearchParamsProps } from '@/types';
 import Pagination from '@/components/Pagination';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Devflow | All Tags Page",
+  description: "All tags page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 interface TagInterface {
   _id: string;
@@ -68,7 +77,7 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
         <div className='mt-12 flex flex-wrap gap-4'>
           <NoResults
             title="Error fetching tags"
-            description="There was an error fetching the tags.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+            description="There was an error fetching the tags. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
             buttonTitle='Go back'
             href='../'
           />

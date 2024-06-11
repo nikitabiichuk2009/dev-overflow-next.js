@@ -13,6 +13,15 @@ import QuestionTab from '@/components/tabs/QuestionTab';
 import AnswersTab from '@/components/tabs/AnswersTab';
 import TagsTab from '@/components/tabs/TagsTab';
 import { URLProps } from '@/types';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Devflow | Profile Page",
+  description: "Profile page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 const Profile = async ({ params, searchParams }: URLProps) => {
   const { userId } = auth();
@@ -36,7 +45,7 @@ const Profile = async ({ params, searchParams }: URLProps) => {
         <h1 className="h1-bold text-dark100_light900">Error</h1>
         <NoResults
           title="Error fetching user data"
-          description="There was an error fetching the user data. Maybe the user you are looking for doesn't exist.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+          description="There was an error fetching the user data. Maybe the user you are looking for doesn't exist. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle="Go back"
           href="../"
         />
@@ -77,9 +86,11 @@ const Profile = async ({ params, searchParams }: URLProps) => {
       <Stats
         questionsCount={userParsed.questionsCount}
         answersCount={userParsed.answersCount}
-        goldBadgesAmount={4}
-        silverBadgesAmount={10}
-        bronzeBadgesAmount={17}
+        totalReputation={Math.floor(userParsed.reputation)}
+        diamondBadgesAmount={Math.floor(userParsed.reputation / 1000)}
+        goldBadgesAmount={Math.floor(userParsed.reputation / 500)}
+        silverBadgesAmount={Math.floor(userParsed.reputation / 300)}
+        bronzeBadgesAmount={Math.floor(userParsed.reputation / 50)}
       />
       <div className='mt-10 flex gap-10'>
         <Tabs defaultValue="top-posts" className="flex-1">

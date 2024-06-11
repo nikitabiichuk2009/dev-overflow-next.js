@@ -1,8 +1,18 @@
 import QuestionForm from '@/components/forms/QuestionForm'
 import { getUserById } from '@/lib/actions/user.actions';
 import { auth } from '@clerk/nextjs/server'
+import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import React from 'react'
+
+
+export const metadata: Metadata = {
+  title: "Devflow | Ask a Question Page",
+  description: "Ask a question page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 const AskQuestion = async () => {
   const { userId } = auth();

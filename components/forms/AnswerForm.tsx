@@ -99,7 +99,7 @@ const AnswerForm = ({ authorId, question, questionId }: { authorId: string, ques
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/__(.*?)__/g, "<u>$1</u>")
         .replace(/\*(.*?)\*/g, "<em>$1</em>")
-        ;
+        .replace(/``(.*?)``/g, "<i>$1</i>");
       if (editorRef.current && formattedAiAnswer) {
         const editor = editorRef.current as any;
         editor.setContent(formattedAiAnswer);
@@ -123,7 +123,7 @@ const AnswerForm = ({ authorId, question, questionId }: { authorId: string, ques
     return (
       <NoResults
         title="Error submitting answer"
-        description="There was an error while submitting your answer.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+        description="There was an error while submitting your answer. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
         buttonTitle='Go back'
         href='../'
       />

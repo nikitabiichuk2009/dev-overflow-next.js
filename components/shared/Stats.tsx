@@ -8,11 +8,11 @@ const StatsCard = ({ questionsCount, answersCount }: { questionsCount: number, a
       <div className="flex w-full justify-between px-4">
         <div className="flex flex-col items-start">
           <span className="paragraph-semibold text-dark200_light900">{questionsCount}</span>
-          <span className="text-dark400_light700 body-medium">Questions</span>
+          <span className="text-dark400_light700 body-medium">{questionsCount === 1 ? "Question" : "Questions"}</span>
         </div>
         <div className="flex flex-col items-start">
           <span className="paragraph-semibold text-dark200_light900">{answersCount}</span>
-          <span className="text-dark400_light700 body-medium">Answers</span>
+          <span className="text-dark400_light700 body-medium">{answersCount === 1 ? "Answer" : "Answers"}</span>
         </div>
       </div>
     </div>
@@ -31,15 +31,44 @@ const ReputationCard = ({ title, imgUrl, amount }: { title: string, imgUrl: stri
   );
 };
 
-const Stats = ({ questionsCount, answersCount, goldBadgesAmount, silverBadgesAmount, bronzeBadgesAmount }: { questionsCount: number, answersCount: number, goldBadgesAmount: number, silverBadgesAmount: number, bronzeBadgesAmount: number }) => {
+const Stats = ({ questionsCount, totalReputation, answersCount, diamondBadgesAmount, goldBadgesAmount, silverBadgesAmount, bronzeBadgesAmount }: { questionsCount: number, answersCount: number, goldBadgesAmount: number, silverBadgesAmount: number, bronzeBadgesAmount: number, diamondBadgesAmount: number, totalReputation: number }) => {
   return (
     <div className='mt-10'>
-      <h3 className='h3-semibold text-dark200_light900 mb-4'>Stats</h3>
+      <h3 className='h3-semibold text-dark200_light900 mb-4'>Stats - {totalReputation}</h3>
+      <p className='mb-7 mt-3.5 font-spaceGrotesk text-[16px] font-normal leading-[19.6px] text-light-500'>
+        Earn badges by accumulating reputation points through your contributions:
+        <ul className="mt-1 list-inside list-disc text-[14px]">
+          <li>Bronze Badge 🥉: Earned every 50 reputation points.</li>
+          <li>Silver Badge 🥈: Earned every 300 reputation points.</li>
+          <li>Gold Badge 🥇: Earned every 500 reputation points.</li>
+          <li>Diamond Badge 💎: Earned every 1000 reputation points.</li>
+        </ul>
+        Increase your reputation by asking questions, providing helpful answers, and receiving upvotes from the community. Be active, stay engaged, and watch your reputation grow! 🌟🚀
+      </p>
+
       <div className='flex flex-wrap gap-4'>
         <StatsCard questionsCount={questionsCount} answersCount={answersCount} />
-        <ReputationCard title='Gold Badges' imgUrl="/assets/icons/gold-medal.svg" amount={goldBadgesAmount} />
-        <ReputationCard title='Silver Badges' imgUrl="/assets/icons/silver-medal.svg" amount={silverBadgesAmount} />
-        <ReputationCard title='Bronze Badges' imgUrl="/assets/icons/bronze-medal.svg" amount={bronzeBadgesAmount} />
+        <ReputationCard
+          title={diamondBadgesAmount === 1 ? 'Diamond Badge' : 'Diamond Badges'}
+          imgUrl="/assets/icons/diamond-medal.svg"
+          amount={diamondBadgesAmount}
+        />
+        <ReputationCard
+          title={goldBadgesAmount === 1 ? 'Gold Badge' : 'Gold Badges'}
+          imgUrl="/assets/icons/gold-medal.svg"
+          amount={goldBadgesAmount}
+        />
+        <ReputationCard
+          title={silverBadgesAmount === 1 ? 'Silver Badge' : 'Silver Badges'}
+          imgUrl="/assets/icons/silver-medal.svg"
+          amount={silverBadgesAmount}
+        />
+        <ReputationCard
+          title={bronzeBadgesAmount === 1 ? 'Bronze Badge' : 'Bronze Badges'}
+          imgUrl="/assets/icons/bronze-medal.svg"
+          amount={bronzeBadgesAmount}
+        />
+
       </div>
     </div>
   )

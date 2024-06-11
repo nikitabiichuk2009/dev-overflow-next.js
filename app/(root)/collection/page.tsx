@@ -8,6 +8,16 @@ import { getSavedQuestions } from "@/lib/actions/user.actions";
 import { SearchParamsProps } from "@/types";
 import { QuestionFilters } from "@/constants/filters";
 import Pagination from "@/components/Pagination";
+import { Metadata } from "next";
+
+
+export const metadata: Metadata = {
+  title: "Devflow | Collection Page",
+  description: "Collection page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 interface Question {
   _id: string;
@@ -43,7 +53,7 @@ export default async function Collection({ searchParams }: SearchParamsProps) {
         <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
         <NoResults
           title="Error fetching your saved questions"
-          description="There was an error fetching your saved questions.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+          description="There was an error fetching your saved questions. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle='Go back'
           href='../'
         />

@@ -3,7 +3,16 @@ import QuestionCard from '@/components/cards/QuestionCard';
 import NoResults from '@/components/shared/NoResults';
 import LocalSearchBar from '@/components/shared/search/LocalSearchBar';
 import { fetchQuestionsByTagId } from '@/lib/actions/tag.actions';
+import { Metadata } from 'next';
 import React from 'react'
+
+export const metadata: Metadata = {
+  title: "Devflow | Tag Details Page",
+  description: "Tag detail page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 interface Question {
   _id: string;
@@ -37,7 +46,7 @@ const Page = async ({ searchParams, params }: any) => {
         <h1 className="h1-bold text-dark100_light900">Tag Details</h1>
         <NoResults
           title="Error fetching tag"
-          description="There was an error fetching the tag.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+          description="There was an error fetching the tag. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle="Go back"
           href="/tags"
         />

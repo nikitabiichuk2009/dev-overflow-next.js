@@ -22,7 +22,9 @@ export async function getAllAnswers(params: GetAnswersParams) {
     // Ensure questionId is an ObjectId
     const questionObjectId = new mongoose.Types.ObjectId(questionId);
 
-    const totalAnswers = await Answer.countDocuments({ question: questionObjectId })
+    const totalAnswers = await Answer.countDocuments({
+      question: questionObjectId,
+    });
 
     // Determine sorting option based on sortBy parameter
     let sortOption = {}; // Default sort by most recent
@@ -87,11 +89,22 @@ export async function createAnswer(params: CreateAnswerParams) {
     });
 
     // Add the answer ID to the question's answers array
-    await Question.findByIdAndUpdate(question, {
+    const question1 = await Question.findByIdAndUpdate(question, {
       $push: { answers: newAnswer._id },
     });
 
-    // TODO: add interaction...
+    await Interaction.create({
+      user: author,
+      action: "answer",
+      answer: newAnswer._id,
+      question,
+      tags: question1.tags
+    });
+
+    await User.findByIdAndUpdate(author, {
+      $inc: { reputation: 10 },
+    });
+
     revalidatePath(path);
   } catch (err) {
     console.log(err);
@@ -154,6 +167,21 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
     // Update the answer document and return the updated document
     await Answer.findByIdAndUpdate(answerObjectId, update, { new: true });
 
+    // Increment the reputation of the user who upvoted or downvoted the answer by 2
+    await User.findByIdAndUpdate(userId, {
+      $inc: { reputation: hasupVoted ? -2 : 2 },
+    });
+
+    // Check if the author of the answer is the same user who upvoted or downvoted
+    if (answer.author.toString() === userId.toString()) {
+      // If the same, do not increment the reputation of the author further (no additional increment needed)
+    } else {
+      // If different, increment the reputation of the answer's author by 10
+      await User.findByIdAndUpdate(answer.author, {
+        $inc: { reputation: hasupVoted ? -10 : 10 },
+      });
+    }
+
     // Revalidate the path to ensure the UI is up-to-date
     revalidatePath(path);
   } catch (err) {
@@ -190,6 +218,22 @@ export async function downvoteAnswer(params: AnswerVoteParams) {
 
     // Update the answer document and return the updated document
     await Answer.findByIdAndUpdate(answerObjectId, update, { new: true });
+
+
+    // Decrement the reputation of the user who downvoted by 3
+    await User.findByIdAndUpdate(userId, {
+      $inc: { reputation: hasdownVoted ? 3 : -3 },
+    });
+
+    // Check if the author of the answer is the same user who downvoted
+    if (answer.author.toString() === userId.toString()) {
+      // If the same, do not decrement the reputation of the author further (no additional decrement needed)
+    } else {
+      // If different, decrement the reputation of the answer's author by 6
+      await User.findByIdAndUpdate(answer.author, {
+        $inc: { reputation: hasdownVoted ? 6 : -6 },
+      });
+    }
 
     // Revalidate the path to ensure the UI is up-to-date
     revalidatePath(path);

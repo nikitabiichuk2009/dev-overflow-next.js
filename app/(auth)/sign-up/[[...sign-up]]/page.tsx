@@ -3,6 +3,8 @@ import { SignUp } from '@clerk/nextjs';
 import React from 'react'
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+
+
 const SigUpPage = () => {
   const router = useRouter()
   return (

@@ -28,7 +28,7 @@ const TagsTab = async ({ searchParams, userId }: Props) => {
         <h1 className="h1-bold text-dark100_light900">Error</h1>
         <NoResults
           title="Error fetching user' questions"
-          description="There was an error fetching the user's questions.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+          description="There was an error fetching the user's questions. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle="Go back"
           href="../"
         />

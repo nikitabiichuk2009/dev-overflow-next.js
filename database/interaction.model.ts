@@ -6,7 +6,7 @@ export interface IInteraction extends Document {
   action: string;
   question: Schema.Types.ObjectId;
   answer: Schema.Types.ObjectId;
-  tag: Schema.Types.ObjectId;
+  tags: Schema.Types.ObjectId[];
   createdAt: Date;
 }
 
@@ -16,11 +16,12 @@ const InteractionSchema = new Schema({
   action: { type: String, required: true },
   question: { type: Schema.Types.ObjectId, ref: "Question" },
   answer: { type: Schema.Types.ObjectId, ref: "Answer" },
-  tag: { type: Schema.Types.ObjectId, ref: "Tag" },
-  createdAt: { type: Date, default: Date.now }
+  tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Create and export the Interaction model
-const Interaction = models.Interaction || model<IInteraction>("Interaction", InteractionSchema);
+const Interaction =
+  models.Interaction || model<IInteraction>("Interaction", InteractionSchema);
 
 export default Interaction;

@@ -23,7 +23,7 @@ const Pagination = ({ pageNumber, isNext }: { pageNumber: number, isNext: boolea
 
     setTimeout(() => {
       setIsDisabled(false);
-    }, 2000); // Disable buttons for 2 seconds
+    }, 1500); // Disable buttons for 1.5 seconds
   };
 
   return (

@@ -2,7 +2,16 @@ import EditProfileForm from '@/components/forms/EditProfileForm'
 import NoResults from '@/components/shared/NoResults';
 import { getUserById } from '@/lib/actions/user.actions';
 import { auth } from '@clerk/nextjs/server'
+import { Metadata } from 'next';
 import React from 'react'
+
+export const metadata: Metadata = {
+  title: "Devflow | Edit a Profile Page",
+  description: "Edit a profile page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 const Page = async ({ params }: any) => {
   const { userId } = auth();

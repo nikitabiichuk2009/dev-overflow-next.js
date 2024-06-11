@@ -2,7 +2,16 @@ import QuestionForm from '@/components/forms/QuestionForm';
 import NoResults from '@/components/shared/NoResults';
 import { getQuestionById } from '@/lib/actions/question.actions'
 import { auth } from '@clerk/nextjs/server';
+import { Metadata } from 'next';
 import React from 'react'
+
+export const metadata: Metadata = {
+  title: "Devflow | Edit a Question Page",
+  description: "Edit a question page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
 
 const Page = async ({ params }: any) => {
   let initialValues;

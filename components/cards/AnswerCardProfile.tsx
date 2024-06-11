@@ -60,7 +60,7 @@ const AnswerCardProfile = ({ answerId, questionId, title, tags, author, upvotes,
     return (
       <NoResults
         title="Error deleting answer"
-        description="An error occurred while attempting to delete the answer.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+        description="An error occurred while attempting to delete the answer. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
         buttonTitle="Go back"
         href={`../`}
       />

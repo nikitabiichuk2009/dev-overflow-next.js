@@ -6,9 +6,11 @@ import { HomePageFilters } from "@/constants/filters";
 import DekstopFilters from "@/components/shared/filters/DekstopFilters";
 import QuestionCard from "@/components/cards/QuestionCard";
 import NoResults from "@/components/shared/NoResults";
-import { getQuestions } from "@/lib/actions/question.actions";
+import { getQuestions, getRecommendedQuestions } from "@/lib/actions/question.actions";
 import { SearchParamsProps } from "@/types";
 import Pagination from "@/components/Pagination";
+import { Metadata } from "next";
+import { auth } from "@clerk/nextjs/server";
 
 interface Question {
   _id: string;
@@ -21,17 +23,38 @@ interface Question {
   createdAt: Date;
 }
 
+export const metadata: Metadata = {
+  title: "Devflow | Home Page",
+  description: "Home page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
+
 export default async function Home({ searchParams }: SearchParamsProps) {
-  let questionsParsed = [];
+  const { userId } = auth();
+  let questionsParsed;
   let isNext;
   const searchQuery = searchParams ? searchParams.q : "";
   const filter = searchParams ? searchParams.filter : "";
-  const page = searchParams.page ? parseInt(searchParams.page) : 1; 
-   try {
-    const result = await getQuestions({ searchQuery, filter, page });
-    questionsParsed = JSON.parse(JSON.stringify(result?.questions));
-    isNext=JSON.parse(JSON.stringify(result?.isNext));
-    // console.log(questionsParsed);
+  const page = searchParams.page ? parseInt(searchParams.page) : 1;
+  try {
+    if (filter === "recommended") {
+      if (userId) {
+        const result = await getRecommendedQuestions({ userId, searchQuery, page });
+        questionsParsed = JSON.parse(JSON.stringify(result?.questions));
+        isNext = JSON.parse(JSON.stringify(result?.isNext));
+      } else {
+        questionsParsed = [];
+        isNext = false;
+      }
+    }
+    else {
+      const result = await getQuestions({ searchQuery, filter, page });
+      questionsParsed = JSON.parse(JSON.stringify(result?.questions));
+      isNext = JSON.parse(JSON.stringify(result?.isNext));
+      // console.log(questionsParsed);
+    }
   } catch (err) {
     console.error('Failed to fetch questions', err);
     return (
@@ -39,14 +62,13 @@ export default async function Home({ searchParams }: SearchParamsProps) {
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
         <NoResults
           title="Error fetching questions"
-          description="There was an error fetching the questions.Try to reload the page or press the button to go back. If that didn't help, Please try again later."
+          description="There was an error fetching the questions. Try to reload the page or press the button to go back. If that didn't help, Please try again later."
           buttonTitle='Go back'
           href='../'
         />
       </div>
     );
   }
-
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
