@@ -32,7 +32,7 @@ const LocalSearchBar = ({ route, searchFor, iconPosition, imgSrc, otherClasses }
         router.push(newUrl, { scroll: false })
       }
       return () => clearTimeout(delayDebounceFn)
-    }, 1000)
+    }, 300)
   }, [search, pathName, searchParams, query, router, route])
 
   const handleImageClick = () => {

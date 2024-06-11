@@ -324,8 +324,6 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       ...query,
     });
     
-    // Log the count to verify
-    console.log('Total saved questions count:', totalUserSavedQuestions);
     const savedPosts = await User.populate(user, {
       path: "savedPosts",
       match: query,
