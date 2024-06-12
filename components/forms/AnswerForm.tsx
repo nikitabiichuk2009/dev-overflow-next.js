@@ -50,6 +50,7 @@ const AnswerForm = ({ authorId, question, questionId }: { authorId: string, ques
         status: 'info',
         isClosable: true,
       })
+      return;
     }
     setIsSubmitting(true)
     try {
@@ -86,6 +87,7 @@ const AnswerForm = ({ authorId, question, questionId }: { authorId: string, ques
         status: 'info',
         isClosable: true,
       })
+      return;
     }
     try {
       setIsSubmittingAI(true);
