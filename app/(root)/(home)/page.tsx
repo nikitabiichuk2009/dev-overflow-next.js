@@ -12,6 +12,15 @@ import Pagination from "@/components/Pagination";
 import { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 
+
+export const metadata: Metadata = {
+  title: "Devflow | Home Page",
+  description: "Home page of Devflow",
+  icons: {
+    icon: "/assets/images/site-logo.svg",
+  },
+};
+
 interface Question {
   _id: string;
   title: string;
@@ -23,13 +32,7 @@ interface Question {
   createdAt: Date;
 }
 
-export const metadata: Metadata = {
-  title: "Devflow | Home Page",
-  description: "Home page of Devflow",
-  icons: {
-    icon: "/assets/images/site-logo.svg",
-  },
-};
+
 
 export default async function Home({ searchParams }: SearchParamsProps) {
   const { userId } = auth();
