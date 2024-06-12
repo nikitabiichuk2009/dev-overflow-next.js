@@ -47,7 +47,7 @@ const MobileNav = () => {
           className='invert-colors cursor-pointer sm:hidden' />
       </SheetTrigger>
       <SheetContent side='left' className='background-light900_dark200 flex flex-col justify-between'>
-        <div className='flex flex-1 flex-col gap-6'>
+        <div className='flex flex-1 flex-col'>
           <Link href="/" className='mb-6 flex items-center gap-1'>
             <Image src="/assets/images/site-logo.svg" width={30} height={30} alt="DevFlow" />
             <p className='h2-bold text-dark100_light900 font-spaceGrotesk'>Dev
@@ -58,7 +58,7 @@ const MobileNav = () => {
         </div>
         <div className='flex flex-col gap-5'>
           <SignedOut>
-            <div className='flex flex-col gap-6'>
+            <div className='flex flex-col gap-3'>
               <SheetClose asChild>
                 <Link href="/sign-in">
                   <Button className='btn-secondary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none'>
@@ -66,7 +66,7 @@ const MobileNav = () => {
                   </Button>
                 </Link>
               </SheetClose>
-              <SheetClose asChild className='flex justify-end'>
+              <SheetClose asChild>
                 <Link href="/sign-up">
                   <Button className='btn-tertiary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none'>
                     <span className='h3-bold text-dark400_light900'>Sign Up</span>
