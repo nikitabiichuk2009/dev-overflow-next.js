@@ -13,7 +13,7 @@ const SigUpPage = () => {
         className='mb-2 me-2 rounded-lg bg-blue-700 px-5 py-2.5 text-lg
         font-semibold text-white hover:bg-blue-800 dark:bg-blue-600
          dark:hover:bg-blue-700'>Back</Button>
-      <SignUp forceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL} />
+      <SignUp />
     </main>
   )
 }
