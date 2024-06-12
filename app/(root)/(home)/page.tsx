@@ -75,7 +75,12 @@ export default async function Home({ searchParams }: SearchParamsProps) {
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="h1-bold text-dark100_light900">All Questions</h1>
+        <div>
+          <h1 className="h1-bold text-dark100_light900">All Questions</h1>
+          <p className='mb-7 mt-3.5 font-spaceGrotesk text-[16px] font-normal leading-[19.6px] text-light-500'>
+            <span className="font-bold text-red-500">!IMPORTANT!:</span> If you have logged in or signed up and your profile button didn't appear in the top right corner of the navigation bar, please reload the page. Thank you for your patience!
+          </p>
+        </div>
         <Link href="/ask-question" className="flex justify-end max-sm:w-full">
           <Button className="primary-gradient min-h-[46px] px-4 py-3 font-semibold !text-light-900">Ask a Question</Button>
         </Link>
