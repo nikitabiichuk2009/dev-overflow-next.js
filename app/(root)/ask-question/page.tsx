@@ -1,4 +1,5 @@
 import QuestionForm from '@/components/forms/QuestionForm'
+import NoResults from '@/components/shared/NoResults';
 import { getUserById } from '@/lib/actions/user.actions';
 import { auth } from '@clerk/nextjs/server'
 import { Metadata } from 'next';
@@ -16,10 +17,26 @@ export const metadata: Metadata = {
 
 const AskQuestion = async () => {
   const { userId } = auth();
+  let mongoUser;
   if (!userId) {
     redirect("/sign-in")
   }
-  const mongoUser = await getUserById({ userId })
+  try {
+    mongoUser = await getUserById({ userId })
+  } catch (err) {
+    console.log(err)
+    return (
+      <div>
+        <h1 className="h1-bold text-dark100_light900">Error</h1>
+        <NoResults
+          title="Error loading user"
+          description="Failed to load user information. Please try again later."
+          buttonTitle="Go back"
+          href="/"
+        />
+      </div>
+    );
+  }
   // console.log(mongoUser)
   return (
     <div>
