@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const maxDuration = 60; // This function can run for a maximum of 60 seconds
+
 export const POST = async (request: Request) => {
   try {
     const { question } = await request.json();
