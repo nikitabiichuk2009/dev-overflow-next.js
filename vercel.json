@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/chatgpt": {
+    "api/chatgpt/route.ts": {
       "maxDuration": 60
     }
   }
