@@ -168,12 +168,12 @@ const QuestionForm = ({ mongoUserId, initialValues, type }: { mongoUserId?: stri
                 </FormLabel>
                 <FormControl className="mt-3.5">
                   <Editor
-                    key={editorKey} // Ensure the editor re-initializes when the mode changes
+                    key={editorKey}
                     apiKey={process.env.NEXT_PUBLIC_TINY_EDITOR_API_KEY}
                     onInit={(evt, editor) => {
                       // @ts-ignore
                       editorRef.current = editor;
-                      editor.setContent(field.value); // Set the initial value for the editor
+                      editor.setContent(field.value);
                     }}
                     onBlur={field.onBlur}
                     onEditorChange={(content) => field.onChange(content)}
@@ -190,6 +190,7 @@ const QuestionForm = ({ mongoUserId, initialValues, type }: { mongoUserId?: stri
                         'codesample | bold italic forecolor | alignleft aligncenter ' +
                         'alignright alignjustify | bullist numlist',
                       content_style: 'body { font-family:Inter; font-size:16px }',
+                      directionality: "ltr",
                       skin: mode === 'dark' ? 'oxide-dark' : 'oxide',
                       content_css: mode === 'dark' ? 'dark' : 'light',
                     }}
