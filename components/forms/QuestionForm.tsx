@@ -36,7 +36,6 @@ const QuestionForm = ({
   const router = useRouter();
   const toast = useToast();
   const { mode } = useTheme();
-  const [editorKey, setEditorKey] = useState(0);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const editorRef = useRef(null);
@@ -99,9 +98,6 @@ const QuestionForm = ({
       }
     }
   }
-  useEffect(() => {
-    setEditorKey((prevKey) => prevKey + 1); // Update the editor key to re-render the editor when the mode changes
-  }, [mode]);
   const handleInputTag = (
     e: React.KeyboardEvent<HTMLInputElement>,
     field: any
@@ -186,9 +182,8 @@ const QuestionForm = ({
                   Detailed explanation of your problem{" "}
                   <span className="text-red-500">*</span>
                 </FormLabel>
-                <FormControl className="mt-3.5">
+                <FormControl className="mt-3.5" key={mode}>
                   <Editor
-                    key={editorKey}
                     apiKey={process.env.NEXT_PUBLIC_TINY_EDITOR_API_KEY}
                     value={editorValue}
                     onInit={(evt, editor) => {
@@ -201,7 +196,6 @@ const QuestionForm = ({
                       field.onChange(content);
                       setEditorValue(content);
                     }}
-                    initialValue={field.value}
                     init={{
                       height: 350,
                       menubar: false,
